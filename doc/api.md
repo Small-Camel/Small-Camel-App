@@ -182,7 +182,7 @@ DELETE commodity?
 
 | 参数名  | 参数            |
 | ---- | ------------- |
-| id   | (String) 商品ID |
+| commodityid   | (String) 商品ID |
 
 
 #### 2. 返回值
