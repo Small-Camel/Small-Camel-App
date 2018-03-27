@@ -210,10 +210,10 @@ GET	 store?
 
 ```json
 {
-  "contact":(String)联系方式
-  "store_name":(String)店铺名
-  "introduction":店铺介绍
-  "avatar":(url)
+  "contact":(String)联系方式,
+  "store_name":(String)店铺名,
+  "introduction":店铺介绍,
+  "avatar":(url),
   "level":(...)
 }
 ```
