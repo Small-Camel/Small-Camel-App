@@ -1,5 +1,11 @@
 # API
 
+`@SessionRequire`
+| 参数名  | 参数       |
+| ---- | -------- |
+| openid | 登陆时服务器返还 |
+| signature | 登陆时从微信用户信息中获取 |
+| rawData | 登陆时从微信用户信息中获取 |
 
 
 ## 卖家
@@ -9,8 +15,8 @@
 ### 1.1 注册
 
 #### 1. 接口名
-
-POST	account
+`@SessionRequire`
+POST	user
 
 POST 参数
 
@@ -33,7 +39,37 @@ POST 参数
   "error":(String)错误
 }
 ```
+### 1.1.# 得到用户信息
 
+#### 1. 接口名
+`@SessionRequire`
+GET	user
+
+GET 参数
+
+
+```JSON
+{
+
+}
+```
+#### 2. 返回值
+
+```Json
+{
+  "error":(String)错误,
+}or{
+  "openid":(String)登陆时服务器返还,
+  "contact":(String)联系方式,
+  "store_name":(String)店铺名,
+  "graduation":(String yyyy-MM-dd)毕业时间,
+  "grade":年级,
+  "major":院系,
+  "name":姓名,
+  "introduction":店铺介绍
+}
+
+```
 ### 1.2 登陆
 
 #### 1. 接口名
@@ -75,7 +111,7 @@ wx.login({
 ### 2.1 上传
 
 #### 1. 接口名
-
+`@SessionRequire`
 POST	commodity
 
 POST 参数
@@ -177,7 +213,7 @@ GET	commodity？
 ### 2.3 下架商品
 
 #### 1. 接口名
-
+`@SessionRequire`
 DELETE commodity?
 
 | 参数名  | 参数            |
