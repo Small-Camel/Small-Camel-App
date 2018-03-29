@@ -36,6 +36,7 @@
 </template>
 <script>
 import wepy from "wepy";
+import apiList from "../api/apiList"
 import api from "../api/api";
 import tip from "../utils/tip";
 import ShopGridList from '../components/shop_grid_list'
@@ -86,18 +87,19 @@ export default class Home extends wepy.page {
     } else {
     }
   }
+  
+  //获得商品列表
   async getGoodList(currentPage, size) {
     let that = this;
     //const json = await api.getGoodsList({
-    const json = await api.hostGoodsList({
-      query: {
+    const json = await apiList.getCommodityList({
         page: currentPage || 1,
         size: size || 10,
+        first_rate: true
         // cateCode: this.catCode,
         // sort: this.sort,
         // skuval: this.skuval
-      }
-    });
+      });
     console.log(json);
     if (json.data.code == 0) {
       that.cate = json.data.category;

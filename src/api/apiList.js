@@ -1,14 +1,28 @@
 import { wxRequest } from "../utils/wxRequest";
-import Mock from "mockjs";
+import {UserInfoNotFound} from './UserInfoNotFound'
+
+var Mock =require("mockjs") ;
 
 const DEBUG = true;
 const basicUrl = "localhost:8080";
+
+const getUserKeys = () => {
+  try {
+    var openid = wx.getStorageSync('openid');
+    var signature = wx.getStorageSync('signature');
+    var rawData = wx.getStorageSync('rawData');
+
+    return `openid=${openid}&signature=${signature}&rawData=${rawData}`;
+  } catch (e) {
+    throw new UserInfoNotFound(e);
+  }
+};
 
 //===============================卖家===================================
 
 /**
  * @SessionRequire
- * 注册登陆
+ * 1.1 注册
  * POST
  * {
   "openid":(String)登陆时服务器返还,
@@ -23,20 +37,26 @@ const basicUrl = "localhost:8080";
  */
 const registAccountMock = () => {};
 
-const registAccount = params => payload => {
+const registAccount = payload => {
+    let userKeys = '';
+  try {
+    userKeys = getUserKeys();
+  } catch (e) {
+    throw e;
+  }
+
   return wxRequest(
     {
       query: payload,
       method: "POST"
     },
-    basicUrl + "/user"
+    basicUrl + "/user?"+userKeys
   );
 };
 
 /**
  * @SessionRequire
- * 得到用户信息
- * TODO:storeid
+ * 1.1.# 得到用户信息
  */
 const getUserDetailMock = () =>
   JSON.stringify(
@@ -53,16 +73,23 @@ const getUserDetailMock = () =>
   );
 
 const getUserDetail = () => {
+    let userKeys = '';
+    try {
+      userKeys = getUserKeys();
+    } catch (e) {
+      throw e;
+    }
+  
   return wxRequest(
     {
       method: "GET"
     },
-    basicUrl + "/user"
+    basicUrl + "/user?"+userKeys
   );
 };
 
 /**
- * 登陆
+ * 1.2 登陆
  * @param {res.code} code
  */
 const loginMock = () => {
@@ -70,12 +97,17 @@ const loginMock = () => {
 };
 
 const login = code => {
-  return wxRequest(
+  const data = wxRequest(
     {
       method: "GET"
     },
     basicUrl + `/onLogin?code=${code}`
   );
+  try {
+    wx.setStorageSync("openid", data.openid);
+  } catch (e) {
+    console.log("setStorageSync error");
+  }
 };
 
 /**
@@ -85,12 +117,19 @@ const login = code => {
 const uploadCommodityMock = () => {};
 
 const uploadCommodity = payload => {
+    let userKeys = '';
+    try {
+      userKeys = getUserKeys();
+    } catch (e) {
+      throw e;
+    }
+  
   return wxRequest(
     {
       query: payload,
       method: "POST"
     },
-    basicUrl + `/commodity`
+    basicUrl + `/commodity?`+userKeys
   );
 };
 
@@ -98,41 +137,76 @@ const uploadCommodity = payload => {
  * 查看商品
  * @param {*} param0
  */
-const getCommodityListMock = () => JSON.stringify({});
-const getCommodityList = ({ storeid, name, first_rate, label }) =>
+const getCommodityListMock = () => JSON.stringify({
+    "content|12": [
+        {
+          "commodityid":()=> Mock.Random.string(10),
+          "price": 8888.0,
+          "label": "2(String)标签, 分类",
+          "name": "2(String)商品名(不超过12字)",
+          "storeid": "admin",
+          "thumbnail":()=>Mock.Random.image('250x250')
+        }
+      ],
+      "pageable": {
+        "sort": { "sorted": true, "unsorted": false },
+        "offset": 0,
+        "pageNumber": 0,
+        "pageSize": 2,
+        "paged": true,
+        "unpaged": false
+      },
+      "totalPages": 1,
+      "totalElements": 2,
+      "last": true,
+      "number": 0,
+      "size": 2,
+      "sort": { "sorted": true, "unsorted": false },
+      "numberOfElements": 2,
+      "first": true
+});
+const getCommodityList = ({size,page, storeid, name, first_rate, label }) =>
   wxRequest(
     {
       method: "GET"
     },
     basicUrl +
-      `/commodityList?storeid=${storeid}&name=${name}&first_rate=${first_rate}&label=${label}`
+      `/commodityList?size=${size}&page=${page}&storeid=${storeid}&name=${name}&first_rate=${first_rate}&label=${label}`
   );
-
 
 /**
  * 查看商品详情
- * @param {*} commodityid 
+ * @param {*} commodityid
  */
-const getCommodityDetailMock=()=>JSON.stringify({
-    "images|5":[()=>Mock.Random.image('720x500')],
-    "name":()=>Mock.Random.cname(),
-    "description":()=>"description"+Mock.Random.string(30),
-    "image_number":5,
-    "label":()=>"label"+Mock.Random.string(3),
-    "id":()=>Mock.Random.string(8),
-    "price|1-500":1,
-    
-    "contact":()=>"contact"+Mock.Random.string(30),
-    "store_name":()=>"store_name"+Mock.Random.string(3),
-    "storeid":()=>Mock.Random.string(10),
-    "introduction":Mock.Random.string(30),
-    "avatar":()=>Mock.Random.image("100x100","blue")
-})
-const getCommodityDetail=commodityid=>{
-    return wxRequest(
-        {
-          method: "GET"
-        },
-        basicUrl+`/commodity?commodityid=${commodityid}`
-    )
+const getCommodityDetailMock = () =>
+  JSON.stringify({
+    "images|5": [() => Mock.Random.image("720x500")],
+    name: () => Mock.Random.cname(),
+    description: () => "description" + Mock.Random.string(30),
+    image_number: 5,
+    label: () => "label" + Mock.Random.string(3),
+    commodityid: () => Mock.Random.string(8),
+    "price|1-500": 1,
+
+    contact: () => "contact" + Mock.Random.string(30),
+    store_name: () => "store_name" + Mock.Random.string(3),
+    storeid: () => Mock.Random.string(10),
+    introduction: () => Mock.Random.string(30),
+    avatar: () => Mock.Random.image("100x100", "blue")
+  });
+const getCommodityDetail = commodityid => {
+  return wxRequest(
+    {
+      method: "GET"
+    },
+    basicUrl + `/commodity?commodityid=${commodityid}`
+  );
+};
+
+module.exports={
+    getCommodityDetail:getCommodityDetailMock,
+    getCommodityList:getCommodityListMock,
+    uploadCommodity:uploadCommodityMock,
+    login:loginMock,
+    getUserDetail:getUserDetailMock,
 }
