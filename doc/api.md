@@ -15,10 +15,12 @@
 ### 1.1 注册
 
 #### 1. 接口名
-`@SessionRequire`
-POST	user
 
+POST	user
+##### PathParameter
+`@SessionRequire`
 POST 参数
+##### Payload
 
 ```JSON
 {
@@ -29,7 +31,8 @@ POST 参数
   "grade":年级,
   "major":院系,
   "name":姓名,
-  "introduction":店铺介绍
+  "introduction":店铺介绍,
+  "avatar":(url)
 }
 ```
 #### 2. 返回值
@@ -42,12 +45,13 @@ POST 参数
 ### 1.1.# 得到用户信息
 
 #### 1. 接口名
-`@SessionRequire`
-GET	user
 
+GET	user
+##### PathParameter
+`@SessionRequire`
 GET 参数
 
-
+##### Payload
 ```JSON
 {
 
@@ -66,7 +70,8 @@ GET 参数
   "grade":年级,
   "major":院系,
   "name":姓名,
-  "introduction":店铺介绍
+  "introduction":店铺介绍,
+  "avatar":(url)
 }
 
 ```
@@ -75,11 +80,11 @@ GET 参数
 #### 1. 接口名
 
 GET		onLogin?
-
+##### PathParameter
 | 参数名  | 参数       |
 | ---- | -------- |
 | code | res.code |
-
+##### Payload
 ```javascript
 wx.login({
       success: function (res) {
@@ -111,9 +116,11 @@ wx.login({
 ### 2.1 上传
 
 #### 1. 接口名
-`@SessionRequire`
-POST	commodity
 
+POST	commodity
+##### PathParameter
+`@SessionRequire`
+##### Payload
 POST 参数
 
 ```json
@@ -131,7 +138,7 @@ wx.chooseImage({
   		  "label":(String)标签,分类,
         "commodityid":(String)商品id,
         "price":number,
-        "storeid":(String)商店id,
+        "openid":(String)商店id,
       }
       success: function(res){
         var data = res.data
@@ -155,14 +162,15 @@ wx.chooseImage({
 #### 1. 接口名
 
 GET	commodityList？
-
+##### PathParameter
 | 参数名        | 参数                |
 | ---------- | ----------------- |
-| storeid   | (String) 店铺 storeid |
+| openid   | (String) 店铺 openid |
 | name       | (String) 模糊搜素     |
 | first_rate | true              |
-| label      | (String)id        |
-
+| label      | (String)类型标签        |
+| page      | page分页查询中的哪一页        |
+| size      | size分页查询中一页的大小        |
 #### 2. 返回值
 
 ```json
@@ -195,12 +203,12 @@ GET	commodity？
   "description":(String)描述(不超过300字),
   "image_number":(int)图片数量,
   "label":(String)标签,分类,
-  "id":(String)id,
+  "commodityid":(String)commodityid,
   "price":number,
   
   "contact":(String)联系方式,
   "store_name":(String)店铺名,
-  "storeid":(String)店铺id,
+  "openid":(String)店铺id,
   "introduction":店铺介绍,
   "avatar":(url)
 }
@@ -213,9 +221,10 @@ GET	commodity？
 ### 2.3 下架商品
 
 #### 1. 接口名
-`@SessionRequire`
-DELETE commodity?
 
+DELETE commodity?
+##### PathParameter
+`@SessionRequire`
 | 参数名  | 参数            |
 | ---- | ------------- |
 | commodityid   | (String) 商品ID |
@@ -237,10 +246,10 @@ DELETE commodity?
 #### 1. 接口名
 
 GET	 store?
-
+##### PathParameter
 | 参数名  | 参数            |
 | ---- | ------------- |
-| id   | (String) 店家ID |
+| openid   | (String) 店ID |
 
 #### 2. 返回值
 
@@ -254,3 +263,28 @@ GET	 store?
 }
 ```
 
+<!-- #### 3.1 新开店铺
+
+#### 1. 接口名
+
+
+POST	 store?
+##### PathParameter
+`@SessionRequire`
+| 参数名  | 参数            |
+| ---- | ------------- |
+
+##### Payload 
+
+
+#### 2. 返回值
+
+```json
+{
+  "contact":(String)联系方式,
+  "store_name":(String)店铺名,
+  "introduction":店铺介绍,
+  "avatar":(url),
+  "level":(...)
+}
+``` -->
