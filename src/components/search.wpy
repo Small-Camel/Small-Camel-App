@@ -12,16 +12,14 @@
   </view>
 </template>
 <script>
-import wepy from 'wepy';
+import wepy from "wepy";
 export default class Search extends wepy.component {
   data = {
-    search_input_value: '',
-    show : 1
-  }
+    search_input_value: "",
+    show: 1
+  };
 
-  events = {
-
-  }
+  events = {};
   methods = {
     searchInput(e) {
       this.search_input_value = e.detail.value;
@@ -30,49 +28,49 @@ export default class Search extends wepy.component {
     goBack() {
       wepy.navigateBack({
         delta: 1 // 回退前 delta(默认为1) 页面
-
-      })
+      });
     },
     search() {
-      this.$emit('searchValue', this.search_input_value);
+      this.$emit("searchValue", this.search_input_value);
     },
     delText() {
       this.search_input_value = "";
       this.$apply();
     },
-    show(param){
+    show(param) {
       this.show = param;
       this.$apply();
     }
-  }
+  };
 
-  onLoad() {
-
-  }
+  onLoad() {}
 }
-
 </script>
 <style lang="less">
 .content {
-  padding: 10rpx;
+  padding: 20rpx 0;
 }
 
 .search {
   align-items: center;
   display: flex;
   margin: 0 auto;
-  width: 680rpx;
+  width: 650rpx;
   .serch_content {
+    font-size: 30rpx;
     display: flex;
+    height: 47rpx;
     align-items: center;
     border-radius: 300rpx;
     color: #333;
     width: 560rpx;
     background: #efefef;
-    padding: 5rpx 12rpx;
-    height: 65rpx;
+    padding: 0 30rpx;
+    height: 55rpx;
+    // height: 65rpx;
     .search_input {
-      font-size: 28rpx;
+      // font-size: 28rpx;
+      font-size: 26rpx;
       width: 100%;
     }
   }
@@ -82,8 +80,8 @@ export default class Search extends wepy.component {
   .btn {
     width: 120rpx;
     height: 65rpx;
-    font-size: 28rpx;
-    line-height: 65rpx;
+    font-size: 20rpx;
+    // line-height: 65rpx;
     margin-left: 20rpx;
     padding-left: 5rpx;
     padding-right: 5rpx;
@@ -99,5 +97,4 @@ export default class Search extends wepy.component {
     font-size: 40rpx;
   }
 }
-
 </style>
