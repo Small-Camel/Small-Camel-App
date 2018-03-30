@@ -2,199 +2,265 @@
   <view class="info">
     <view class="header">
       <view class="header_content">
-        <image class="avatarUrl" src="{{avatarUrl}}"></image>
-        <view class="nickName cfff">{{nickName}}</view>
+        <view wx:if="{{isLogin}}">
+          <image class="avatarUrl" src="{{avatarUrl}}"></image>
+          <view class="nickName cfff">{{nickName}}</view>
+        </view>
+        <view wx:else @tap="loginEvent()">
+          <view class="avatarUrl"></view>
+          <view class="nickName cfff">点我登陆</view>
+        </view>
       </view>
     </view>
-    <view class="info_block">
-      <navigator class="item" url="/pages/register" wx:if="{{bShowBind}}">
-        <view>
-          <view class="item_content">
-            <image class="item_img" src="../images/icon_my_01.png"></image>
-            <view class="text" style="color:#fe2a2a">绑定手机号</view>
+    <button class="regist_button" @tap="registEvent()" wx:if="{{isLogin&&!isUser}}">点我申请店铺~</button>
+    <view wx:if="{{isUser}}">
+      <view class="info_block">
+        <navigator class="item" url="/pages/register" wx:if="{{bShowBind}}">
+          <view>
+            <view class="item_content">
+              <image class="item_img" src="../images/icon_my_01.png"></image>
+              <view class="text" style="color:#fe2a2a">绑定手机号</view>
+            </view>
+            <view class="tip">绑定手机号可更好的让我们服务好您！</view>
           </view>
-          <view class="tip">绑定手机号可更好的让我们服务好您！</view>
-        </view>
-        <view class="arrow">&gt;</view>
-      </navigator>
-      <navigator class="item" url="/pages/order">
-        <view class="item_content">
-          <image class="item_img" src="../images/icon_my_02.png"></image>
-          <view class="text">全部订单</view>
-        </view>
-        <view class="arrow">&gt;</view>
-      </navigator>
-      <navigator class="item" url="/pages/reorder">
-        <view class="item_content">
-          <image class="item_img" src="../images/icon_my_02.png"></image>
-          <view class="text">补货订单</view>
-        </view>
-        <view class="arrow">&gt;</view>
-      </navigator>
-      <navigator class="item" url="/pages/points">
-        <view class="item_content">
-          <image class="item_img" src="../images/icon_my_03.png"></image>
-          <view class="text">我的积分</view>
-        </view>
-        <view class="arrow">&gt;</view>
-      </navigator>
-      <navigator class="item" url="/pages/collection?type=0">
-        <view class="item_content">
-          <image class="item_img" src="../images/icon_my_04.png"></image>
-          <view class="text">我的足迹</view>
-        </view>
-        <view class="arrow">&gt;</view>
-      </navigator>
-      <navigator class="item" url="/pages/collection?type=1">
-        <view class="item_content">
-          <image class="item_img" src="../images/icon_my_05.png"></image>
-          <view class="text">我的收藏</view>
-        </view>
-        <view class="arrow">&gt;</view>
-      </navigator>
-    </view>
-    <view class="info_block">
-      <navigator class="item" url="/pages/messages">
-        <view class="item_content">
-          <image class="item_img" src="../images/icon_my_06.png"></image>
-          <view class="text">我的消息</view>
-        </view>
-        <view class="arrow">&gt;</view>
-      </navigator>
-      <navigator class="item" url="/pages/setting">
-        <view class="item_content">
-          <image class="item_img" src="../images/icon_my_07.png"></image>
-          <view class="text">设置</view>
-        </view>
-        <view class="arrow">&gt;</view>
-      </navigator>
+          <view class="arrow">&gt;</view>
+        </navigator>
+        <navigator class="item" url="/pages/order">
+          <view class="item_content">
+            <image class="item_img" src="../images/icon_my_02.png"></image>
+            <view class="text">全部订单</view>
+          </view>
+          <view class="arrow">&gt;</view>
+        </navigator>
+        <navigator class="item" url="/pages/reorder">
+          <view class="item_content">
+            <image class="item_img" src="../images/icon_my_02.png"></image>
+            <view class="text">补货订单</view>
+          </view>
+          <view class="arrow">&gt;</view>
+        </navigator>
+        <navigator class="item" url="/pages/points">
+          <view class="item_content">
+            <image class="item_img" src="../images/icon_my_03.png"></image>
+            <view class="text">我的积分</view>
+          </view>
+          <view class="arrow">&gt;</view>
+        </navigator>
+        <navigator class="item" url="/pages/collection?type=0">
+          <view class="item_content">
+            <image class="item_img" src="../images/icon_my_04.png"></image>
+            <view class="text">我的足迹</view>
+          </view>
+          <view class="arrow">&gt;</view>
+        </navigator>
+        <navigator class="item" url="/pages/collection?type=1">
+          <view class="item_content">
+            <image class="item_img" src="../images/icon_my_05.png"></image>
+            <view class="text">我的收藏</view>
+          </view>
+          <view class="arrow">&gt;</view>
+        </navigator>
+      </view>
+      <view class="info_block">
+        <navigator class="item" url="/pages/messages">
+          <view class="item_content">
+            <image class="item_img" src="../images/icon_my_06.png"></image>
+            <view class="text">我的消息</view>
+          </view>
+          <view class="arrow">&gt;</view>
+        </navigator>
+        <navigator class="item" url="/pages/setting">
+          <view class="item_content">
+            <image class="item_img" src="../images/icon_my_07.png"></image>
+            <view class="text">设置</view>
+          </view>
+          <view class="arrow">&gt;</view>
+        </navigator>
+      </view>
     </view>
   </view>
 </template>
 <script>
-import wepy from 'wepy';
-import api from '../api/api';
-import {
-  USER_INFO,USER_SPECICAL_INFO
-} from '../utils/constant';
-export default class Index extends wepy.page {
-  config = {
-    navigationBarTitleText: '我',
-  }
-  components = {
-
-  }
-
-  data = {
-    avatarUrl: "",
-    nickName: "",
-    bShowBind:false
-  }
-  async getUserInfo(phone,code) {
-    let that = this;
-    let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-    let openId = userSpecialInfo.openid;
-    const json = await api.getUserInfo({
-      query: {
-        openId: openId
-      }
-    });
-
-    if (json.data.code == 0) {
-      if (json.data.user.mobile.length>0) {
-        this.bShowBind=false;
-      } else {
-        this.bShowBind = true;
+  import wepy from "wepy";
+  import api from "../api/api";
+  import apiList from "../api/apiList";
+  import {
+    USER_INFO,
+    USER_SPECICAL_INFO
+  } from "../utils/constant";
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: "我的"
+    };
+    components = {};
+    data = {
+      avatarUrl: "",
+      nickName: "",
+      bShowBind: false,
+      isLogin: false,
+      isUser: false
+    };
+    onLoad() {
+    }
+    onShow() {
+      // let that = this;
+      this.setLoginState(); 
+// this.getUserInfo();
+    }
+    async setLoginState() {
+      let that = this;
+      let userInfo = wepy.getStorageSync(USER_INFO);
+      if (userInfo) {
+        that.avatarUrl = userInfo.avatarUrl;
+        that.nickName = userInfo.nickName;
+        that.isLogin = true;
+        const registedUserDetail = await apiList.getUserDetail();
+        //用户尚未注册商户
+        console.log(registedUserDetail);
+        if (registedUserDetail.status >= 400) {
+          console.log("普通用户");
+        } else {
+          that.isUser = true;
+        }
       }
       that.$apply();
-    } else {
-      tip.error(json.data.msg)
     }
-    that.showLoading = false;
+    askForUserDetail() {
+      const recordUserDetail = async(code, rawData, signature) => {
+        const openid = await apiList.login(code);
+        await wepy.setStorageSync('openid', openid);
+        await wepy.setStorageSync('rawData', rawData);
+        await wepy.setStorageSync('signature', signature);
+        this.setLoginState();
+      };
+      wx.login({
+        success: async function(res) {
+          var code = res.code;
+          wx.getUserInfo({
+            success: function(res) {
+              // 当用户授权成功的时候，保存用户的登录信息
+              wepy.setStorageSync(USER_INFO, res.userInfo);
+              recordUserDetail(code, res.rawData, res.signature);
+            },
+            fail: function(res) {
+              //用户点了“拒绝”
+              wx.showModal({
+                title: "小提示",
+                content: "需要获得您的头像和昵称才能继续，是否重新设置权限",
+                success: function(res) {
+                  if (res.confirm) {
+                    wx.openSetting({
+                      success: res => {
+                        if (res.authSetting["scope.userInfo"]) {
+                          wepy.setStorageSync(USER_INFO, res.userInfo);
+                          recordUserDetail(code, res.rawData, res.signature);
+                        } else {
+                          // 如果成功打开授权
+                        } // 如果用户依然拒绝授权
+                      },
+                      fail: function() {
+                        //调用失败，授权登录不成功
+                        fail();
+                      }
+                    });
+                  } else if (res.cancel) {
+                    console.log("用户点击取消");
+                  }
+                }
+              }); // 向用户提示需要权限才能继续
+            }
+          });
+        }
+      });
+    }
+    computed = {};
+    methods = {
+      loginEvent() {
+        this.askForUserDetail();
+      },
+      async registEvent() {
+        this.askForUserDetail();
+        if (this.isLogin) {
+          wx.navigateTo({
+            url: `register`
+          })
+        }
+      }
+    };
+    events = {};
   }
-
-  onLoad() {
-    let that = this;
-    let userInfo = wepy.getStorageSync(USER_INFO);
-    that.avatarUrl = userInfo.avatarUrl;
-    that.nickName = userInfo.nickName;
-  }
-  onShow(){
-    let that = this;
-    this.getUserInfo();
-  }
-  computed = {
-
-  }
-  methods = {
-
-  }
-  events = {
-
-  }
-}
-
 </script>
 <style lang="less">
-.header {
-  background: #ff6a3c;
-  height: 260rpx;
-  width: 100%;
-}
-
-.header_content {
-  width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  padding-top: 48rpx;
-}
-
-.avatarUrl {
-  width: 122rpx;
-  height: 122rpx;
-  border-radius: 1000px;
-}
-
-.nickName {
-  font-size: 30rpx;
-  padding-top: 15rpx;
-}
-
-.info_block {
-  margin-top: 10rpx;
-  .item {
-    border-top: 1rpx solid #dbdbdb;
-    background: #fff;
-    padding: 34rpx 28rpx;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  .header {
+    background: #6958ff;
+    height: 350rpx;
+    width: 690rpx;
+    margin: 30rpx;
+    border-radius: 20rpx;
+    box-shadow: 0 10px 50px rgba(105, 88, 255, 0.486);
   }
-  .item:last-child {
-    border-bottom: 1rpx solid #dbdbdb;
+  .header_content {
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+    padding-top: 80rpx;
   }
-  .item_content {
-    display: flex;
-    align-items: center;
-    .text {
-      margin-left: 20rpx;
-      color: #1a1a1a;
+  .avatarUrl {
+    width: 122rpx;
+    height: 122rpx;
+    margin: 0 auto;
+    border-radius: 1000px;
+    background: white;
+  }
+  .nickName {
+    font-size: 30rpx;
+    padding-top: 15rpx;
+  }
+  .regist_button {
+    margin: 30rpx auto;
+    width: 690rpx;
+    color: white;
+    font-size: 30rpx; // padding: 25rpx 0;
+    border-radius: 15rpx;
+    text-align: center;
+    background-image: linear-gradient(-20deg, #01b698 0%, #7ee6df 100%);
+    border: none;
+    box-shadow: 0 1px 10px rgba(126, 230, 223, 0.685);
+  }
+  .info_block {
+    margin-top: 10rpx;
+    .item {
+      border-top: 1rpx solid #dbdbdb;
+      background: #fff;
+      padding: 34rpx 28rpx;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .item:last-child {
+      border-bottom: 1rpx solid #dbdbdb;
+    }
+    .item_content {
+      display: flex;
+      align-items: center;
+      .text {
+        margin-left: 20rpx;
+        color: #1a1a1a;
+      }
+    }
+    .item_img {
+      width: 42rpx;
+      height: 42rpx;
+    }
+    .arrow {
+      color: #cccccc;
+      font-size: 32rpx;
+    }
+    .tip {
+      color: #999;
+      font-size: 24rpx;
+      margin-top: 20rpx;
+      margin-left: 60rpx;
     }
   }
-  .item_img {
-    width: 42rpx;
-    height: 42rpx;
-  }
-  .arrow {
-    color: #cccccc;
-    font-size: 32rpx;
-  }
-  .tip {
-    color: #999;
-    font-size: 24rpx;
-    margin-top: 20rpx;
-    margin-left: 60rpx;
-  }
-}
-
 </style>

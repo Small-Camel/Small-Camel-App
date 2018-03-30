@@ -1,16 +1,16 @@
 import { wxRequest } from "../utils/wxRequest";
-import {UserInfoNotFound} from './UserInfoNotFound'
+import { UserInfoNotFound } from "./UserInfoNotFound";
 
-var Mock =require("mockjs") ;
+var Mock = require("mockjs");
 
 const DEBUG = true;
 const basicUrl = "localhost:8080";
 
 const getUserKeys = () => {
   try {
-    var openid = wx.getStorageSync('openid');
-    var signature = wx.getStorageSync('signature');
-    var rawData = wx.getStorageSync('rawData');
+    var openid = wx.getStorageSync("openid");
+    var signature = wx.getStorageSync("signature");
+    var rawData = wx.getStorageSync("rawData");
 
     return `openid=${openid}&signature=${signature}&rawData=${rawData}`;
   } catch (e) {
@@ -38,7 +38,7 @@ const getUserKeys = () => {
 const registAccountMock = () => {};
 
 const registAccount = payload => {
-    let userKeys = '';
+  let userKeys = "";
   try {
     userKeys = getUserKeys();
   } catch (e) {
@@ -50,7 +50,7 @@ const registAccount = payload => {
       query: payload,
       method: "POST"
     },
-    basicUrl + "/user?"+userKeys
+    basicUrl + "/user?" + userKeys
   );
 };
 
@@ -59,32 +59,31 @@ const registAccount = payload => {
  * 1.1.# 得到用户信息
  */
 const getUserDetailMock = () =>
-  JSON.stringify(
-    Mock.mock({
-      openid: () => "openid" + Mock.Random.string(15),
-      contact: () => "contact" + Mock.Random.string(30),
-      store_name: () => "store_name" + Mock.Random.string(7),
-      graduation: () => Mock.Random.date("yyyy-MM-dd"),
-      "grade|1-4": 1,
-      major: () => "major" + Mock.Random.string(4),
-      name: () => Mock.Random.cname(),
-      introduction: () => Mock.Random.sentence()
-    })
-  );
+  Mock.mock({
+    openid: () => "openid" + Mock.Random.string(15),
+    contact: () => "contact" + Mock.Random.string(30),
+    store_name: () => "store_name" + Mock.Random.string(7),
+    graduation: () => Mock.Random.date("yyyy-MM-dd"),
+    "grade|1-4": 1,
+    major: () => "major" + Mock.Random.string(4),
+    name: () => Mock.Random.cname(),
+    introduction: () => Mock.Random.sentence(),
+    status: 404
+  });
 
 const getUserDetail = () => {
-    let userKeys = '';
-    try {
-      userKeys = getUserKeys();
-    } catch (e) {
-      throw e;
-    }
-  
+  let userKeys = "";
+  try {
+    userKeys = getUserKeys();
+  } catch (e) {
+    throw e;
+  }
+
   return wxRequest(
     {
       method: "GET"
     },
-    basicUrl + "/user?"+userKeys
+    basicUrl + "/user?" + userKeys
   );
 };
 
@@ -93,7 +92,7 @@ const getUserDetail = () => {
  * @param {res.code} code
  */
 const loginMock = () => {
-  openid: "openid";
+  return "????";
 };
 
 const login = code => {
@@ -117,19 +116,19 @@ const login = code => {
 const uploadCommodityMock = () => {};
 
 const uploadCommodity = payload => {
-    let userKeys = '';
-    try {
-      userKeys = getUserKeys();
-    } catch (e) {
-      throw e;
-    }
-  
+  let userKeys = "";
+  try {
+    userKeys = getUserKeys();
+  } catch (e) {
+    throw e;
+  }
+
   return wxRequest(
     {
       query: payload,
       method: "POST"
     },
-    basicUrl + `/commodity?`+userKeys
+    basicUrl + `/commodity?` + userKeys
   );
 };
 
@@ -137,35 +136,36 @@ const uploadCommodity = payload => {
  * 查看商品
  * @param {*} param0
  */
-const getCommodityListMock = () => JSON.stringify({
+const getCommodityListMock = () =>
+  Mock.mock({
     "content|12": [
-        {
-          "commodityid":()=> Mock.Random.string(10),
-          "price": 8888.0,
-          "label": "2(String)标签, 分类",
-          "name": "2(String)商品名(不超过12字)",
-          "storeid": "admin",
-          "thumbnail":()=>Mock.Random.image('250x250')
-        }
-      ],
-      "pageable": {
-        "sort": { "sorted": true, "unsorted": false },
-        "offset": 0,
-        "pageNumber": 0,
-        "pageSize": 2,
-        "paged": true,
-        "unpaged": false
-      },
-      "totalPages": 1,
-      "totalElements": 2,
-      "last": true,
-      "number": 0,
-      "size": 2,
-      "sort": { "sorted": true, "unsorted": false },
-      "numberOfElements": 2,
-      "first": true
-});
-const getCommodityList = ({size,page, storeid, name, first_rate, label }) =>
+      {
+        commodityid: () => Mock.Random.string(10),
+        price: 8888.0,
+        label: "2(String)标签, 分类",
+        name: "2(String)商品名(不超过12字)",
+        storeid: "admin",
+        thumbnail: () => Mock.Random.image("250x250")
+      }
+    ],
+    pageable: {
+      sort: { sorted: true, unsorted: false },
+      offset: 0,
+      pageNumber: 0,
+      pageSize: 2,
+      paged: true,
+      unpaged: false
+    },
+    totalPages: 10,
+    totalElements: 2,
+    last: true,
+    number: 0,
+    size: 2,
+    sort: { sorted: true, unsorted: false },
+    numberOfElements: 2,
+    first: true
+  });
+const getCommodityList = ({ size, page, storeid, name, first_rate, label }) =>
   wxRequest(
     {
       method: "GET"
@@ -179,7 +179,7 @@ const getCommodityList = ({size,page, storeid, name, first_rate, label }) =>
  * @param {*} commodityid
  */
 const getCommodityDetailMock = () =>
-  JSON.stringify({
+  Mock.mock({
     "images|5": [() => Mock.Random.image("720x500")],
     name: () => Mock.Random.cname(),
     description: () => "description" + Mock.Random.string(30),
@@ -203,10 +203,11 @@ const getCommodityDetail = commodityid => {
   );
 };
 
-module.exports={
-    getCommodityDetail:getCommodityDetailMock,
-    getCommodityList:getCommodityListMock,
-    uploadCommodity:uploadCommodityMock,
-    login:loginMock,
-    getUserDetail:getUserDetailMock,
-}
+module.exports = {
+  getCommodityDetail: getCommodityDetailMock,
+  getCommodityList: getCommodityListMock,
+  uploadCommodity: uploadCommodityMock,
+  login: loginMock,
+  getUserDetail: getUserDetailMock,
+  registAccount:registAccountMock
+};

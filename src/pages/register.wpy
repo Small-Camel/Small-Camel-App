@@ -1,166 +1,207 @@
 <!--绑定手机-->
 <template>
   <form bindsubmit="formSubmit">
+    <view class="block_label">*必填*</view>
     <view class="section">
-      <view class="section_title">手机号</view>
-      <input name="phone" type="number" bindinput="phoneInput" placeholder="请输入手机号码" maxlength="11" focus="true" />
+      <view class="section_title">店铺名</view>
+      <input value="{{store_name}}" maxlength='10' name="store_name" type="text" placeholder="请输入您的店铺名称" />
     </view>
     <view class="section">
-      <view class="section_title">验证码</view>
-      <input class="code" name="code" type="number" placeholder="请输入验证码" />
-      <view class="btn send_code">
-        <text wx:if="{{sendMsgDisabled}}">{{time+'秒后获取'}}</text>
-        <text @tap="sendCode" wx:else="{{sendMsgDisabled}}">发送验证码</text>
-      </view>
+      <view class="section_title">联系方式</view>
+      <textarea value="{{contact}}" maxlength='100' name="contact" type="text" placeholder="这是买家与您联系的唯一方式,可以留下多条, 建议格式为  qq:1234567" />
     </view>
+    <view class="block_label">*选填*</view>
+    <view class="section">
+      <view class="section_title">店铺介绍</view>
+      <textarea value="{{introduction}}" maxlength='100' name="introduction" type="text" placeholder="请输入您的店铺介绍" />
+    </view>
+    <view class="section">
+      <view class="section_title">姓名</view>
+      <input value="{{name}}" name="name" maxlength='10' type="text" placeholder="请输入您的姓名" />
+    </view>
+    <view class="section">
+      <view class="section_title">年级</view>
+      <input value="{{grade}}" name="grade" maxlength='10' type="text" placeholder="请输入您的年级" />
+    </view>
+    <view class="section">
+      <view class="section_title">院系</view>
+      <input value="{{major}}" name="major" maxlength='10' type="text" placeholder="请输入您的院系" />
+    </view>
+    <view class="section">
+      <view class="section_title">毕业时间</view>
+      <picker class="picker" name="graduation" value="{{graduation}}" mode="date" fields="year" bindchange="bindGraduationChange">
+        <view>
+         {{graduation===""?"请选择时间":graduation}}
+        </view>
+      </picker>
+      <!-- <input value="{{graduation}}" name="graduation" type="text" placeholder="请输入您的毕业时间"/> -->
+    </view>
+    <!--    <view class="section">
+            <view class="section_title">验证码</view>
+            <input class="code" name="code" type="number" placeholder="请输入验证码" />
+            <view class="btn send_code">
+              <text wx:if="{{sendMsgDisabled}}">{{time+'秒后获取'}}</text>
+              <text @tap="sendCode" wx:else="{{sendMsgDisabled}}">发送验证码</text>
+            </view>
+          </view> -->
     <view class="btn_comfire">
-      <button class="button type_yellow" formType="submit">完成</button>
+      <button class="button type_yellow" formType="submit" @tap="tmp()">完成</button>
     </view>
   </form>
 </template>
 <script>
-import wepy from 'wepy';
-import api from '../api/api';
-import tip from '../utils/tip'
-import {
-  USER_SPECICAL_INFO
-} from '../utils/constant';
-
-
-export default class Register extends wepy.page {
-  config = {
-    navigationBarTitleText: '绑定手机',
-  }
-  components = {}
-
-  data = {
-    phone : "",
-    sendMsgDisabled: false,
-    time: 60
-  }
-
-  async sendVerifyCode() {
-    const json = await api.sendRandCode({
-      query: {
-        phone: this.phone
-      }
-    });
-    if (json.data.code == 0) {
-      tip.success("发送成功!");
-      that.$apply();
-    } else {
-      tip.error(json.data.msg)
+  import wepy from "wepy";
+  import apiList from "../api/apiList";
+  import tip from "../utils/tip";
+  import {
+    USER_INFO
+  } from "../utils/constant";
+  export default class Register extends wepy.page {
+    config = {
+      navigationBarTitleText: "设置店铺信息"
+    };
+    components = {};
+    data = {
+      store_name: "",
+      introduction: "",
+      contact: "",
+      name: "",
+      grade: "",
+      major: "",
+      graduation: "",
+      time: 60
+    };
+    // async sendVerifyCode() {
+    //   const json = await api.sendRandCode({
+    //     query: {
+    //       phone: this.phone
+    //     }
+    //   });
+    //   if (json.data.code == 0) {
+    //     tip.success("发送成功!");
+    //     that.$apply();
+    //   } else {
+    //     tip.error(json.data.msg);
+    //   }
+    // }
+    bindGraduationChange(e){
+      this.graduation=e.detail.value;
     }
-  }
-
-  async registerUser(phone,code) {
-        let that = this;
-        let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-        let openId = userSpecialInfo.openid;
-        const json = await api.registerUser({
-          query: {
-            openId: openId,
-            mobile:phone,
-            verificationCode:code
-          }
-        });
-
-        if (json.data.code == 0) {
-          // that.list = json.data.list;
-          wepy.navigateBack();
-          console.log("绑定成功.....");
-
-          that.$apply();
-        } else {
-          tip.error(json.data.msg)
-        }
-        that.showLoading = false;
-      }
-
-
-  onLoad() {
-    let that = this;
-
-
-  }
-  computed = {
-
-  }
-  methods = {
-    phoneInput(e) {
-      this.phone = e.detail.value;
-    },
-    sendCode(e) {
-      if (this.phone == "") {
-        tip.alert("输入手机号码");
-        return false;
-      }
-      this.sendVerifyCode();
+    async registerStore(value) {
       let that = this;
-      that.sendMsgDisabled = true;
-      let interval = setInterval(() => {
-        if ((that.time--) <= 0) {
-          that.time = 10;
-          that.sendMsgDisabled = false;
-          clearInterval(interval);
-          that.$apply();
-        }
+      let userSpecialInfo = (await wepy.getStorageSync(USER_INFO)) || {};
+      let openId = (await wepy.getStorageSync("openid")) || {};
+      let avatar = userSpecialInfo.avatarUrl;
+      const payload = {
+        openid: openId,
+        contact: value.contact,
+        store_name: value.store_name,
+        graduation: value.graduation,
+        grade: value.grade,
+        major: value.grade,
+        name: value.grade,
+        introduction: value.grade,
+        avatar: avatar
+      };
+      console.log(payload);
+      const json = await apiList.registAccount(payload);
+      tip.success("申请成功",1000)
+      await setTimeout(() => {
+        wepy.navigateBack();
         that.$apply();
-      }, 1000);
-    },
+      },1000);
+      // that.showLoading = false;
+    }
+    onLoad() {
+      let that = this;
+    }
+    computed = {};
+    methods = {
+      tmp() {
+        console.log("????");
+      }
+      // phoneInput(e) {
+      //   this.phone = e.detail.value;
+      // },
+      // sendCode(e) {
+      //   if (this.phone == "") {
+      //     tip.alert("输入手机号码");
+      //     return false;
+      //   }
+      //   this.sendVerifyCode();
+      //   let that = this;
+      //   that.sendMsgDisabled = true;
+      //   let interval = setInterval(() => {
+      //     if (that.time-- <= 0) {
+      //       that.time = 10;
+      //       that.sendMsgDisabled = false;
+      //       clearInterval(interval);
+      //       that.$apply();
+      //     }
+      //     that.$apply();
+      //   }, 1000);
+      // },
+    };
     formSubmit(e) {
       let that = this;
-      let phone = e.detail.value.phone;
-      let code = e.detail.value.code;
-      if (phone == "") {
-        tip.alert("输入手机号码");
+      console.log(e);
+      let store_name = e.detail.value.store_name;
+      let contact = e.detail.value.contact;
+      if (store_name == "") {
+        tip.alert("输入店铺名");
         return false;
       }
-      if (code == "") {
-        tip.alert("输入验证码");
+      if (contact == "") {
+        tip.alert("输入联系方式");
         return false;
       }
-      that.registerUser(phone,code);
-      console.log('form发生了submit事件，携带数据为：', e.detail.value)
+      that.registerStore(e.detail.value);
     }
   }
-}
-
 </script>
 <style lang="less">
-.section {
-  display: flex;
-  align-items: center;
-  padding: 20rpx 30rpx;
-  border-bottom: 1px solid #dbdbdb;
-  background: #fff;
-  .section_title {
-    color: #1a1a1a;
-    padding-right: 75rpx;
+  .block_label {
+    margin: 40rpx auto 20rpx;
+    width: 100rpx;
   }
-  .btn {
-    padding: 15rpx 10rpx;
-    border: 1px solid #000000;
-    -moz-border-radius: 5rpx;
-    /* Firefox */
-    -webkit-border-radius: 5rpx;
-    /* Safari 和 Chrome */
-    border-radius: 5rpx;
-    /* Opera 10.5+, 以及使用了IE-CSS3的IE浏览器 */
-    color: #000000;
+  .section {
+    display: flex;
+    align-items: top;
+    padding: 20rpx 30rpx; // border-bottom: 1px solid rgba(219, 219, 219, 0.376);
+    background: #fff;
+    .section_title {
+      color: #1a1a1a7c;
+      width: 200rpx;
+      padding-top: 10rpx;
+    }
+    .picker,
+    input,
+    textarea {
+      width: 500rpx;
+    }
+    textarea {
+      height: 200rpx;
+    }
+    .btn {
+      padding: 15rpx 10rpx;
+      border: 1px solid #000000;
+      -moz-border-radius: 5rpx;
+      /* Firefox */
+      -webkit-border-radius: 5rpx;
+      /* Safari 和 Chrome */
+      border-radius: 5rpx;
+      /* Opera 10.5+, 以及使用了IE-CSS3的IE浏览器 */
+      color: #000000;
+    }
+    .send_code {
+      margin-left: 40rpx;
+    }
   }
-  .send_code {
-    margin-left: 40rpx;
+  .btn_comfire {
+    margin: 64rpx auto;
+    padding: 0 24rpx;
   }
-}
-
-.btn_comfire {
-  margin-top: 64rpx;
-  padding: 0 24rpx;
-}
-
-.code {
-  width: 300rpx;
-}
-
+  .code {
+    width: 300rpx;
+  }
 </style>
