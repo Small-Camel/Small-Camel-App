@@ -1,20 +1,6 @@
 <template>
   <view class="container">
-    <view class="pos">
-      <view class="search_read_only">
-        <navigator class="search_content" open-type="navigate" url="/pages/search">
-          <i class="iconfont icon-search"></i>
-          <view class="search_input">搜索商品</view>
-        </navigator>
-      </view>
-    </view>
-    <swiper class="swiper" indicator-active-color="{{indicatorActiveColor}}" indicator-dots="{{indicatorDots}}" autoplay="{{autoplay}}" interval="{{interval}}" duration="{{duration}}" circular="true">
-      <block wx:for="{{adList}}" wx:key="key">
-        <swiper-item>
-          <image src="{{item.picUrl}}" class="slide-image" @tap="goToAdvert({{item.advertUrl}})" />
-        </swiper-item>
-      </block>
-    </swiper>
+
     <view class="recommend-title">商品推荐</view>
     <view class="shop_list">
       <!--矩阵商品列表模块-->
@@ -35,15 +21,17 @@
   import api from "../api/api";
   import tip from "../utils/tip";
   import ShopGridList from '../components/shop_grid_list'
+  import Bombscreen from "../components/bomb_screen";
   import BottomLoadMore from "../components/common/bottomLoadMore";
   import Placeholder from "../components/common/placeholder";
   export default class Home extends wepy.page {
     config = {
-      navigationBarTitleText: "小骆驼杂货铺"
+      navigationBarTitleText: "商铺详情"
     };
     components = {
       bottomLoadMore: BottomLoadMore,
       placeholder: Placeholder,
+      bombscreen: Bombscreen,
       shopGridList: ShopGridList
     };
     data = {

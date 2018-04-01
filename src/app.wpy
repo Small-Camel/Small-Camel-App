@@ -2,6 +2,7 @@
 @import "./styles/base";
 @import "./styles/icon";
 @import "./styles/style";
+@import './plugins/wemark/wemark.wxss';
 
 </style>
 <script>
@@ -25,37 +26,18 @@ export default class extends wepy.app {
       'pages/home',
       'pages/home_detail',
       'pages/classify',
-      'pages/shop_cart',
       'pages/info',
       'pages/search',
-      'pages/test',
-      'pages/sign_in',
-      'pages/exchange_goods',
-      'pages/wholesale',
-      'pages/replenishment_goods',
-      'pages/register',
-      'pages/order',
-      'pages/reorder',
-      'pages/pay_success',
-      'pages/points',
-      'pages/points_more',
-      'pages/points_rule',
-      'pages/collection',
-      'pages/messages',
       'pages/setting',
       'pages/goods_detail',
-      'pages/comfire_order',
-      'pages/address',
-      'pages/order_detail',
-      'pages/filter',
-      'pages/logistics',
-      'pages/comment',
-      'pages/comment_add'
+      'pages/store_page',
+      'pages/about',
+      'pages/license'
     ],
     window: {
       backgroundTextStyle: 'dark',
       navigationBarBackgroundColor: '#FFFFFF',
-      navigationBarTitleText: 'WeChat',
+      navigationBarTitleText: '小骆驼杂货铺',
       navigationBarTextStyle: 'black',
       enablePullDownRefresh: false,
       // backgroundColor: '#EFEFEF',

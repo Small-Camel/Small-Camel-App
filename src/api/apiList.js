@@ -68,7 +68,7 @@ const getUserDetailMock = () =>
     major: () => "major" + Mock.Random.string(4),
     name: () => Mock.Random.cname(),
     introduction: () => Mock.Random.sentence(),
-    status: 404
+    status: 200
   });
 
 const getUserDetail = () => {

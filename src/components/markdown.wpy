@@ -1,0 +1,42 @@
+<template>
+    <view class="wemark_wrapper">
+        <block wx:for="{{renderList}}" wx:key="blockIndex" wx:for-index="blockIndex" wx:for-item="renderBlock">
+            <view class="wemark_block_{{renderBlock.type}}">
+                <block wx:if="{{renderBlock.isArray}}" wx:for="{{renderBlock.content}}" wx:key="inlineIndex" wx:for-index="inlineIndex" wx:for-item="renderInline">
+                    <text class="wemark_inline_{{renderInline.type}}" wx:if="{{renderInline.type === 'text' || renderInline.type === 'code' || renderInline.type === 'strong' || renderInline.type === 'deleted' || renderInline.type === 'em' || renderInline.type === 'table_th' || renderInline.type === 'table_td'}}">{{renderInline.content}}</text>
+                    <image mode="widthFix" class="wemark_inline_image" src="{{renderInline.src}}" wx:if="{{renderInline.type === 'image'}}" />
+                </block>
+                <block wx:if="{{!renderBlock.isArray}}">
+                    <view class="wemark_block_h1">
+                        {{renderList}}
+                    </view>
+                    <view wx:if="{{renderBlock.type === 'code'}}">{{renderBlock.content}}</view>
+                    <video wx:if="{{renderBlock.type == 'video'}}" class="wemark_block_video" src="{{renderBlock.src}}" poster="{{renderBlock.poster}}" controls></video>
+                </block>
+            </view>
+        </block>
+    </view>
+</template>
+<script>
+    import wepy from "wepy";
+    import wemark from "../plugins/wemark/wemark";
+    var md = "# hello, world\n\nI love you, wemark!";
+    export default class Markdown extends wepy.component {
+        props = {
+            markdownText: {
+                default: "null"
+            }
+        };
+        data = {
+            renderList: []
+        };
+        computed = {};
+        onLoad() {
+            const ret = wemark.parse(this.markdownText);
+            this.renderList = ret.renderList;
+        }
+    }
+</script>
+<style lang="less">
+
+</style>

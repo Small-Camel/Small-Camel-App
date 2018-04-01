@@ -8,7 +8,8 @@ const TIMESTAMP = util.getCurrentTime()
 const SIGN = md5.hex_md5((TIMESTAMP + API_SECRET_KEY).toLowerCase())
 
 const wxRequest = async(params = {}, url) => {
-    tip.loading();
+    // tip.loading();
+    wx.showNavigationBarLoading();
     let data = params.query || {};
     data.sign = SIGN;
     data.time = TIMESTAMP;
@@ -18,7 +19,8 @@ const wxRequest = async(params = {}, url) => {
         data: data,
         header: { 'Content-Type': 'application/json' },
     });
-    tip.loaded();
+    // tip.loaded();
+    wx.hideNavigationBarLoading();
     return res;
 };
 

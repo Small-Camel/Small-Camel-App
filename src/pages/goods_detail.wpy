@@ -1,6 +1,5 @@
 <template>
   <view style="height:{{winHeight}}rpx;overflow:hidden">
-    <import src="../plugins/wxParse/wxParse.wxml" />
     <!--index.wxml-->
     <swiper indicator-dots="true" autoplay="true" interval="5000" duration="500" indicator-active-color="#ffc452" indicator-color="#efefef" class="swiper">
       <block wx:for="{{detail.images}}" key="item" item="item" wx:key="key">
@@ -52,8 +51,6 @@ import { SYSTEM_INFO, USER_SPECICAL_INFO } from "../utils/constant";
 import tip from "../utils/tip";
 import api from "../api/api";
 import apiList from "../api/apiList";
-import WxParse from "../plugins/wxParse/wxParse";
-import CommentList from "../components/comment_list";
 export default class goodsDetail extends wepy.page {
   config = {
     navigationBarTitleText: "商品详情"
@@ -69,7 +66,6 @@ export default class goodsDetail extends wepy.page {
     animationData: "",
   };
   components = {
-    commentList: CommentList
   };
   onLoad(option) {
     let that = this;

@@ -1,0 +1,29 @@
+<!--绑定手机-->
+<template>
+    <view class="main-sec">
+        <markdown :markdownText.sync="aboutText"></markdown>
+    </view>
+</template>
+<script>
+    import wepy from "wepy";
+    import apiList from "../api/apiList";
+    import Markdown from "../components/markdown"
+    export default class About extends wepy.page {
+        config = {
+            navigationBarTitleText: "软件协议"
+        };
+        components = {
+            markdown: Markdown
+        };
+        data = {
+            aboutText: require("../doc/LICENSE.js")
+        };
+    }
+</script>
+<style lang="less">
+    .main-sec {
+        font-size: none;
+        max-width: 680rpx;
+        margin: 40rpx auto;
+    }
+</style>

@@ -50,7 +50,7 @@
     padding-bottom: 30rpx;
   }
   .list:nth-child(odd) {
-    margin-right: 15rpx;
+    margin-right: 10rpx;
   }
   .list {
     margin-bottom: 50rpx;
