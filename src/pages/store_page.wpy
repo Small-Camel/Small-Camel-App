@@ -1,15 +1,22 @@
 <template>
   <view class="container">
-
-    <view class="recommend-title">商品推荐</view>
-    <view class="shop_list">
+    <view class="store_intro">
+      <image class="avatarUrl" src="{{detail.avatar}}"></image>
+      <view class="store_text">
+        <view class="store_name">{{detail.store_name}}</view>
+        <view>{{detail.introduction||"店家有些懒，什么也没写~~"}}</view>
+      </view>
+    </view>
+    <view class="recommend-title">商铺商品</view>
+    <view class="store_list">
       <!--矩阵商品列表模块-->
-      <shopGridList :purchasetype.sync="purchasetype" :list.sync="list"></shopGridList>
+      <shopGridList :purchasetype.sync="purchasetype" :list.sync="list" :selectable.sync="selectable" :selectedList.sync="selectedList"></shopGridList>
       <!--加载更多时动画-->
       <bottomLoadMore :show.sync="showLoading" message="正在加载"></bottomLoadMore>
       <!--暂无数据显示-->
       <placeholder :show.sync="is_empty" message="暂无发现数据"></placeholder>
     </view>
+    <button wx:if="{{showDeleteButton}}" class="delete-button" type="warn" loading="{{deleteLoading}}" bindtap="deleteSelectedCommodity"> 下架选中商品 </button>
     <!--暂无数据显示-->
     <!-- <placeholder :show.sync="is_empty" message="暂无发现数据"></placeholder> -->
   </view>
@@ -35,6 +42,10 @@
       shopGridList: ShopGridList
     };
     data = {
+      //openid;
+      openid: "",
+      //店主数据
+      detail: {},
       //swiper
       indicatorDots: true,
       autoplay: true,
@@ -46,7 +57,7 @@
       //是否有数据
       is_empty: false,
       //当前页面
-      currentPage: 1,
+      currentPage: 0,
       //总页数
       totalPages: 0,
       //是否显示 底部loading
@@ -56,32 +67,52 @@
       //广告列表
       adList: [],
       tps: 0,
-      is_show_alert: true
+      is_show_alert: true,
+      selectable: false,
+      selectedList: [],
+      showDeleteButton: false
     };
-    async getAdList() {
-      const json = await api.getAdList({
-        query: {}
-      });
-      if (json.data.code == 0) {
-        this.adList = json.data.list;
-        this.$apply();
-      } else {}
+    watch = {
+      selectedList(newValue, oldValue) {
+        if (newValue.length >= 1) {
+          this.showDeleteButton = true;
+        } else {
+          this.showDeleteButton = false;
+        }
+        console.log("newValue", newValue)
+        console.log("showDeleteButton", this.showDeleteButton);
+      }
+    }
+    //获得店铺信息
+    async getStoreDetail(openid) {
+      let that = this;
+      const json = await apiList.getStoreDetail(openid);
+      that.detail = json;
+      that.$apply();
     }
     //获得商品列表
-    async getGoodList(currentPage, size) {
+    async getGoodList(currentPage, size, openid) {
       let that = this;
       //const json = await api.getGoodsList({
       const json = await apiList.getCommodityList({
-        page: currentPage || 1,
+        page: currentPage || 0,
         size: size || 10,
-        first_rate: true
+        openid: openid || this.openid,
         // cateCode: this.catCode,
         // sort: this.sort,
         // skuval: this.skuval
       });
-      console.log(json);
+      const selectedList = that.selectedList.slice(0);
+      console.log("selectedList", selectedList);
+      that.list.map(e => {
+        console.log("selectedList", selectedList.indexOf(e));
+        if (selectedList.indexOf(e.commodityid) >= 0) {
+          e.selected = true;
+        }
+        return e;
+      })
       that.list = [...that.list, ...json.content];
-      console.log(json.content);
+      that.selectedList = selectedList;
       that.totalPages = json.totalPages;
       if (json.totalElements == 0) {
         //暂无数据
@@ -90,13 +121,32 @@
       that.showLoading = false;
       that.$apply();
     }
-    onLoad() {
-      let that = this;
-      this.getAdList();
-      this.getGoodList();
-    }
+    onLoad(option) {
+      this.openid = option.openid;
+      this.selectable = option.isOwner;
+      console.log(option.isOwner);
+      this.getStoreDetail(option.openid);
+      this.getGoodList(0, 10, option.openid);
+    };
     computed = {};
     methods = {
+      deleteSelectedCommodity() {
+        // const contentText
+        wx.showModal({
+          title: "下架商品",
+          content: `您选中了${this.selectedList.length}件商品，是否继续`,
+          success: async function(res) {
+            if (res.confirm) {
+              
+            } else if (res.cancel) {
+              console.log("用户点击取消");
+            }
+          }
+        });
+      },
+      onShopListTap() {
+        console.log(this.list)
+      },
       goToAdvert(url) {
         console.log("url===" + url);
         if (url.length == 0) {
@@ -143,23 +193,47 @@
         }
         that.preventRepeatRequest = true;
         that.currentPage++;
-        
         that.getGoodList(that.currentPage);
         that.preventRepeatRequest = false;
       } else {
         that.showLoading = false;
       }
+      that.$apply();
     }
   }
 </script>
 
 <style lang="less">
-  .swiper {
-    height: 348rpx;
-  }
-  .slide-image {
-    width: 100%;
-    height: 100%;
+  .store_intro {
+    width: 600rpx;
+    margin: 50rpx auto;
+    background: white;
+    border-radius: 10rpx;
+    box-shadow: 0 10rpx 50rpx rgba(0, 0, 0, 0.055);
+    display: flex;
+    flex: 1 1 0%;
+    .store_text {
+      flex: 1 1 0%;
+      margin: 30rpx;
+      margin-left: 0;
+    }
+    view {
+      font-size: 25rpx;
+      margin-bottom: 20rpx;
+    }
+    .store_name {
+      font-size: 30rpx;
+      font-weight: bold;
+      color: black;
+      margin-bottom: 20rpx;
+    }
+    .avatarUrl {
+      width: 110rpx;
+      height: 110rpx;
+      margin: 30rpx;
+      border-radius: 1000px;
+      background: white;
+    }
   }
   .pos {
     // position: fixed;
@@ -196,5 +270,15 @@
   }
   .container {
     background: transparent;
+  }
+  .delete-button {
+    border-radius: 0;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    right: 0;
+  }
+  .store_list {
+    margin-bottom: 130rpx
   }
 </style>

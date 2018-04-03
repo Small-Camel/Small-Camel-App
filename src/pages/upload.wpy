@@ -1,0 +1,321 @@
+<!--绑定手机-->
+<template>
+  <form bindsubmit="formSubmit">
+    <view class="section">
+      <view class="section_title">商品名称</view>
+      <input value="{{name}}" maxlength='12' name="name" type="text" placeholder="请输入您的商品名称" />
+    </view>
+    <view class="section">
+      <view class="section_title">商品价格</view>
+      <input value="{{name}}" name="name" maxlength='10' type="digit" placeholder="请输入商品价格（单位：人民币）" />
+    </view>
+    <view class="section">
+      <view class="section_title">商品描述</view>
+      <textarea value="{{description}}" maxlength='300' name="description" type="text" placeholder="请在此处描述您的商品" />
+    </view>
+    <view class="section">
+      <view class="section_title">商品分类</view>
+      <input value="{{grade}}" name="grade" maxlength='10' type="text" placeholder="请输入您的年级" />
+    </view>
+    <view class="section">
+      <view class="section_title">图片详情</view>
+      <input value="{{major}}" name="major" maxlength='10' type="text" placeholder="请输入您的院系" />
+    </view>
+  </form>
+</template>
+<script>
+  import wepy from "wepy";
+  import apiList from "../api/apiList";
+  import tip from "../utils/tip";
+  import {
+    USER_INFO
+  } from "../utils/constant";
+  export default class UploadCommodity extends wepy.page {
+    config = {
+      navigationBarTitleText: "上传商品"
+    };
+    components = {};
+    data = {
+      store_name: "",
+      introduction: "",
+      contact: "",
+      name: "",
+      grade: "",
+      major: "",
+      graduation: "",
+      time: 60,
+    };
+    // async sendVerifyCode() {
+    //   const json = await api.sendRandCode({
+    //     query: {
+    //       phone: this.phone
+    //     }
+    //   });
+    //   if (json.data.code == 0) {
+    //     tip.success("发送成功!");
+    //     that.$apply();
+    //   } else {
+    //     tip.error(json.data.msg);
+    //   }
+    // }
+    bindGraduationChange(e) {
+      this.graduation = e.detail.value;
+    }
+    async registerStore(value) {
+      let that = this;
+      let userSpecialInfo = (await wepy.getStorageSync(USER_INFO)) || {};
+      let openId = (await wepy.getStorageSync("openid")) || {};
+      let avatar = userSpecialInfo.avatarUrl;
+      const payload = {
+        openid: openId,
+        contact: value.contact,
+        store_name: value.store_name,
+        graduation: value.graduation,
+        grade: value.grade,
+        major: value.grade,
+        name: value.grade,
+        introduction: value.grade,
+        avatar: avatar
+      };
+      console.log(payload);
+      const json = await apiList.registAccount(payload);
+      tip.success("申请成功", 1000)
+      await setTimeout(() => {
+        wepy.navigateBack();
+        that.$apply();
+      }, 1000);
+      // that.showLoading = false;
+    }
+    onLoad() {
+      let that = this;
+    }
+    computed = {};
+    methods = {
+      tmp() {
+        console.log("????");
+      }
+      // phoneInput(e) {
+      //   this.phone = e.detail.value;
+      // },
+      // sendCode(e) {
+      //   if (this.phone == "") {
+      //     tip.alert("输入手机号码");
+      //     return false;
+      //   }
+      //   this.sendVerifyCode();
+      //   let that = this;
+      //   that.sendMsgDisabled = true;
+      //   let interval = setInterval(() => {
+      //     if (that.time-- <= 0) {
+      //       that.time = 10;
+      //       that.sendMsgDisabled = false;
+      //       clearInterval(interval);
+      //       that.$apply();
+      //     }
+      //     that.$apply();
+      //   }, 1000);
+      // },
+    };
+    formSubmit(e) {
+      let that = this;
+      console.log(e);
+      let store_name = e.detail.value.store_name;
+      let contact = e.detail.value.contact;
+      if (store_name == "") {
+        tip.alert("输入店铺名");
+        return false;
+      }
+      if (contact == "") {
+        tip.alert("输入联系方式");
+        return false;
+      }
+      that.registerStore(e.detail.value);
+    }
+  }
+</script>
+<style lang="less">
+  .block_label {
+    margin: 40rpx auto 20rpx;
+    width: 100rpx;
+  }
+  .section {
+    display: flex;
+    align-items: top;
+    padding: 20rpx 30rpx; // border-bottom: 1px solid rgba(219, 219, 219, 0.376);
+    background: #fff;
+    .section_title {
+      color: #1a1a1a7c;
+      width: 200rpx;
+      padding-top: 10rpx;
+    }
+    .picker,
+    input,
+    textarea {
+      width: 500rpx;
+    }
+    textarea {
+      height: 200rpx;
+    }
+    .btn {
+      padding: 15rpx 10rpx;
+      border: 1px solid #000000;
+      -moz-border-radius: 5rpx;
+      /* Firefox */
+      -webkit-border-radius: 5rpx;
+      /* Safari 和 Chrome */
+      border-radius: 5rpx;
+      /* Opera 10.5+, 以及使用了IE-CSS3的IE浏览器 */
+      color: #000000;
+    }
+    .send_code {
+      margin-left: 40rpx;
+    }
+  }
+  .btn_comfire {
+    margin: 64rpx auto;
+    padding: 0 24rpx;
+  }
+  .code {
+    width: 300rpx;
+  } //上传图片部分
+  .view-upload-x {
+    float: left;
+    position: absolute;
+    margin-right: 9px;
+    margin-bottom: 9px;
+    width: 22px;
+    height: 22px;
+    border-radius: 1000px;
+    background-color: red;
+    border: 1px solid #D9D9D9;
+  }
+  .view-upload-x:before,
+  .view-upload-x:after {
+    content: " ";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%) rotate(45deg);
+    transform: translate(-50%, -50%) rotate(45deg);
+    background-color: white;
+  }
+  .view-upload-x:before {
+    width: 3.5px;
+    height: 15px;
+  }
+  .view-upload-x:after {
+    width: 15px;
+    height: 3.5px;
+  }
+  .view-upload-x:active {
+    border-color: #999999;
+  }
+  .view-upload-x:active:before,
+  .view-upload-x:active:after {
+    background-color: #999999;
+  }
+  .weui-uploader__input {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+  }
+  .weui-uploader__hd {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    padding-bottom: 10px;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+  }
+  .weui-uploader__title {
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    flex: 1;
+  }
+  .weui-uploader__info {
+    color: #B2B2B2;
+  }
+  .weui-uploader__bd {
+    margin-bottom: -4px;
+    margin-right: -9px;
+    overflow: hidden;
+  }
+  .weui-uploader__file {
+    float: left;
+    margin-right: 9px;
+    margin-bottom: 9px;
+  }
+  .weui-uploader__img {
+    display: block;
+    width: 79px;
+    height: 79px;
+  }
+  .weui-uploader__file_status {
+    position: relative;
+  }
+  .weui-uploader__file_status:before {
+    content: " ";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  .weui-uploader__file-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    color: #FFFFFF;
+  }
+  .weui-uploader__input-box {
+    float: left;
+    position: relative;
+    margin-right: 9px;
+    margin-bottom: 9px;
+    width: 77px;
+    height: 77px;
+    border: 1px solid #D9D9D9;
+  }
+  .weui-uploader__input-box:before,
+  .weui-uploader__input-box:after {
+    content: " ";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    background-color: #D9D9D9;
+  }
+  .weui-uploader__input-box:before {
+    width: 2px;
+    height: 39.5px;
+  }
+  .weui-uploader__input-box:after {
+    width: 39.5px;
+    height: 2px;
+  }
+  .weui-uploader__input-box:active {
+    border-color: #999999;
+  }
+  .weui-uploader__input-box:active:before,
+  .weui-uploader__input-box:active:after {
+    background-color: #999999;
+  }
+  .weui-uploader__input {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+  }
+</style>

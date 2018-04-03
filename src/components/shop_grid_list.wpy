@@ -1,31 +1,37 @@
 <!--商品列表模块-->
 <template>
   <scroll-view scroll-y="true" class="swiper-item-box">
-    <view class="shop_item">
-      <navigator class="list" 
-      wx:for="{{list}}" 
-      wx:key="item" 
-      url="/pages/goods_detail?id={{item.commodityid}}">
-        <view class="image_box">
-          <image src="{{item.thumbnail}}"></image>
-        </view>
-        <view class="goods">
-          <view class="product_name" wx:if="{{showTitle}}">{{item.name}}</view>
-          <view class="product_info">
-            <view class="price">￥{{item.price}}</view>
-            <!-- <view class="cost_price">￥{{item.marketPrice}}</view>
-                <view class="sale_num">销量{{item.saleCount}}件</view> -->
+    <checkbox-group bindchange="checkboxChange">
+      <view class="shop_item">
+        <navigator class="list" wx:for="{{list}}" wx:key="item" url="/pages/goods_detail?id={{item.commodityid}}">
+          <view class="image_box">
+            <image src="{{item.thumbnail}}"></image>
           </view>
-        </view>
-      </navigator>
-    </view>
+          <view wx:if="{{selectable}}" class="checkbox">
+            <checkbox catchtap="onCheckbox" value="{{item.commodityid}}" checked="{{item.selected}}" />
+            <!-- <view class="checkbox__icon" /> -->
+          </view>
+          <view class="goods">
+            <view class="product_name" wx:if="{{showTitle}}">{{item.name}}</view>
+            <view class="product_info">
+              <view class="price">￥{{item.price}}</view>
+              <!-- <view class="cost_price">￥{{item.marketPrice}}</view>
+                    <view class="sale_num">销量{{item.saleCount}}件</view> -->
+            </view>
+          </view>
+        </navigator>
+      </view>
+    </checkbox-group>
   </scroll-view>
 </template>
 <script>
   import wepy from "wepy";
   export default class ShopGridList extends wepy.component {
     props = {
-      list: [],
+      list: {
+        default: [],
+        twoWay:true        
+      },
       purchasetype: {
         default: 1 //类型:1-商品订单;2-商品补单;
       },
@@ -34,28 +40,49 @@
       },
       showTitle: {
         default: true
+      },
+      selectable: {
+        default: false
+      },
+      selectedList:{
+        default: [],
+        twoWay:true
       }
     };
     events = {};
-    methods = {};
+    methods = {
+      onCheckbox: function(e) {
+        // console.log(e);
+      },
+      checkboxChange: function(e) {
+        this.selectedList=e.detail.value;
+      }
+    };
     onLoad() {}
   }
 </script>
 <style lang="less">
+  .checkbox {
+    position: absolute;
+    top: 10rpx;
+    left: 10rpx;
+  }
   .shop_item {
-    padding: 0rpx 15rpx;
+    margin: 0 auto;
+    width: 710rpx;
     background: white;
     display: flex;
     flex-wrap: wrap;
     padding-bottom: 30rpx;
   }
   .list:nth-child(odd) {
-    margin-right: 10rpx;
+    margin-right: 20rpx;
   }
   .list {
+    position: relative;
     margin-bottom: 50rpx;
     background: #fff;
-    width: 355rpx; // margin-top: 15rpx;
+    width: 345rpx; // margin-top: 15rpx;
     .image_box {
       image {
         width: 100%;

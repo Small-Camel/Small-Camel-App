@@ -15,14 +15,14 @@
     <button class="regist_button" @tap="registEvent()" wx:if="{{isLogin&&!isUser}}">点我申请店铺~</button>
     <view wx:if="{{isUser}}">
       <view class="info_block">
-        <navigator class="item" url="/pages/store_page">
+        <navigator class="item" url="/pages/store_page?openid={{openid}}&isOwner={{isOwner}}">
           <view class="item_content">
             <image class="item_img" src="../images/icon_my_02.png"></image>
             <view class="text">我的商铺</view>
           </view>
           <view class="arrow">&gt;</view>
         </navigator>
-        <navigator class="item" url="/pages/order">
+        <navigator class="item" url="/pages/upload">
           <view class="item_content">
             <image class="item_img" src="../images/icon_my_02.png"></image>
             <view class="text">上传商品</view>
@@ -74,13 +74,19 @@
       nickName: "",
       bShowBind: false,
       isLogin: false,
-      isUser: false
+      isUser: false,
+      openid:"",
+      isOwner:true
     };
-    onLoad() {}
-    onShow() {
-      // let that = this;
-      this.setLoginState();
-      // this.getUserInfo();
+    onLoad() {
+      this.onShow();
+    }
+    async onShow() {
+      let that = this;
+      await that.setLoginState();
+      that.openid=await wepy.getStorageSync('openid');
+      that.$apply();
+      console.log(this.openid);
     }
     async setLoginState() {
       let that = this;
@@ -88,6 +94,7 @@
       if (userInfo) {
         that.avatarUrl = userInfo.avatarUrl;
         that.nickName = userInfo.nickName;
+        that.openid=userInfo.openid;
         that.isLogin = true;
         const registedUserDetail = await apiList.getUserDetail();
         //用户尚未注册商户

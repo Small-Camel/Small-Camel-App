@@ -32,7 +32,9 @@ export default class extends wepy.app {
       'pages/goods_detail',
       'pages/store_page',
       'pages/about',
-      'pages/license'
+      'pages/license',
+      'pages/register',
+      'pages/upload'
     ],
     window: {
       backgroundTextStyle: 'dark',

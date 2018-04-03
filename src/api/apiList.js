@@ -92,7 +92,7 @@ const getUserDetail = () => {
  * @param {res.code} code
  */
 const loginMock = () => {
-  return "????";
+  return "12343312324221";
 };
 
 const login = code => {
@@ -144,7 +144,7 @@ const getCommodityListMock = () =>
         price: 8888.0,
         label: "2(String)标签, 分类",
         name: "2(String)商品名(不超过12字)",
-        storeid: "admin",
+        openid: "admin",
         thumbnail: () => Mock.Random.image("250x250")
       }
     ],
@@ -165,13 +165,13 @@ const getCommodityListMock = () =>
     numberOfElements: 2,
     first: true
   });
-const getCommodityList = ({ size, page, storeid, name, first_rate, label }) =>
+const getCommodityList = ({ size, page, openid, name, first_rate, label }) =>
   wxRequest(
     {
       method: "GET"
     },
     basicUrl +
-      `/commodityList?size=${size}&page=${page}&storeid=${storeid}&name=${name}&first_rate=${first_rate}&label=${label}`
+      `/commodityList?size=${size}&page=${page}&openid=${openid}&name=${name}&first_rate=${first_rate}&label=${label}`
   );
 
 /**
@@ -190,7 +190,7 @@ const getCommodityDetailMock = () =>
 
     contact: () => "contact" + Mock.Random.string(30),
     store_name: () => "store_name" + Mock.Random.string(3),
-    storeid: () => Mock.Random.string(10),
+    openid: () => Mock.Random.string(10),
     introduction: () => Mock.Random.string(30),
     avatar: () => Mock.Random.image("100x100", "blue")
   });
@@ -203,11 +203,66 @@ const getCommodityDetail = commodityid => {
   );
 };
 
+const getStoreDetailMock = () =>
+  Mock.mock({
+    "level|1-5": "⭐",
+    contact: () => "contact" + Mock.Random.string(30),
+    store_name: () => "store_name" + Mock.Random.string(3),
+    introduction: () => Mock.Random.string(30),
+    avatar: () => Mock.Random.image("100x100", "blue")
+  });
+
+const getStoreDetail = openid => {
+  return wxRequest(
+    {
+      method: "GET"
+    },
+    basicUrl + `/store?openid=${openid}`
+  );
+};
+
+const getCategory = () =>
+  Mock.mock([{
+    name: () => Mock.Random.cname(),
+    categoryid: () => "categoryid" + Mock.Random.string(30),
+    description:()=> Mock.Random.string(30),
+    "children|15":[{
+      cover: () => Mock.Random.image("100x100"),
+      name: () => Mock.Random.cname(),
+      categoryid: () => "categoryid" + Mock.Random.string(30),
+      description:()=> Mock.Random.string(30),
+    }]
+  },{
+    cover: [() => Mock.Random.image("100x100")],
+    name: () => Mock.Random.cname(),
+    categoryid: () => "categoryid" + Mock.Random.string(30),
+    description:()=> Mock.Random.string(30),
+    "children|15":[{
+      cover: [() => Mock.Random.image("100x100")],
+      name: () => Mock.Random.cname(),
+      categoryid: () => "categoryid" + Mock.Random.string(30),
+      description:()=> Mock.Random.string(30),
+    }]
+  },{
+    cover: [() => Mock.Random.image("100x100")],
+    name: () => Mock.Random.cname(),
+    categoryid: () => "categoryid" + Mock.Random.string(30),
+    description:()=> Mock.Random.string(30),
+    "children|15":[{
+      cover: [() => Mock.Random.image("100x100")],
+      name: () => Mock.Random.cname(),
+      categoryid: () => "categoryid" + Mock.Random.string(30),
+      description:()=> Mock.Random.string(30),
+    }]
+  },]);
+
 module.exports = {
   getCommodityDetail: getCommodityDetailMock,
   getCommodityList: getCommodityListMock,
   uploadCommodity: uploadCommodityMock,
   login: loginMock,
   getUserDetail: getUserDetailMock,
-  registAccount:registAccountMock
+  registAccount: registAccountMock,
+  getStoreDetail: getStoreDetailMock,
+  getCategory
 };

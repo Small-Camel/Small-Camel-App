@@ -205,7 +205,7 @@ GET commodityList？
       "price": 8888.0,
       "label": "2(String)标签, 分类",
       "name": "2(String)商品名(不超过12字)",
-      "storeid": "admin",
+      "openid": "admin",
       "thumbnail":
         "http://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/xiaoluotuo/idtest1995365.jpg?x-oss-process=style/xiaoluotuo-thumbnail"
     },
@@ -214,7 +214,7 @@ GET commodityList？
       "price": 8888.0,
       "label": "(String)标签, 分类",
       "name": "(String)商品名(不超过12字)",
-      "storeid": "admin",
+      "openid": "admin",
       "thumbnail":
         "http://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/xiaoluotuo/testid1234561436990.jpg?x-oss-process=style/xiaoluotuo-thumbnail"
     }
@@ -314,6 +314,30 @@ GET store?
   "avatar":(url),
   "level":(...)
 }
+```
+
+
+## 4. 分类
+
+#### 4.1 得到分类
+
+#### 1. 接口名
+
+GET category
+
+#### 2. 返回值
+
+```json
+[{
+    "name": string,
+    "categoryid": string
+    "children":[{
+      "cover": 100X100
+      "name": string,
+      "categoryid": string
+      "description":string,
+    }]
+  },]
 ```
 
 <!-- #### 3.1 新开店铺
