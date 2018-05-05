@@ -1,5 +1,108 @@
 # API
 
+- [API](#api)
+  - [卖家](#)
+  - [1.注册登陆](#1)
+    - [1.1 注册](#11)
+      - [1. 接口名](#1)
+        - [PathParameter](#pathparameter)
+        - [Payload](#payload)
+      - [2. 返回值](#2)
+    - [1.1.# 得到用户信息](#11)
+      - [1. 接口名](#1)
+        - [PathParameter](#pathparameter)
+        - [Payload](#payload)
+      - [2. 返回值](#2)
+    - [1.2 登陆](#12)
+      - [1. 接口名](#1)
+        - [PathParameter](#pathparameter)
+        - [Payload](#payload)
+      - [2. 返回值](#2)
+  - [2. 上传商品](#2)
+    - [2.1 上传](#21)
+      - [1. 接口名](#1)
+        - [PathParameter](#pathparameter)
+        - [Payload](#payload)
+      - [2. 返回值](#2)
+    - [2.2 查看](#22)
+      - [1. 接口名](#1)
+        - [PathParameter](#pathparameter)
+      - [2. 返回值](#2)
+    - [2.2.1 查看商品详情](#221)
+      - [1. 接口名](#1)
+      - [2. 返回值](#2)
+    - [2.3 下架商品](#23)
+      - [1. 接口名](#1)
+        - [PathParameter](#pathparameter)
+      - [2. 返回值](#2)
+  - [3. 店家](#3)
+    - [3.1 店家详情](#31)
+      - [1. 接口名](#1)
+        - [PathParameter](#pathparameter)
+      - [2. 返回值](#2)
+  - [4. 分类](#4)
+    - [4.1 得到分类](#41)
+      - [1. 接口名](#1)
+      - [2. 返回值](#2)
+  - [5. 管理员](#5)
+    - [5.1 管理员登录](#51)
+      - [1. 接口名](#1)
+        - [Header](#header)
+        - [PathParameter](#pathparameter)
+      - [2. 返回值](#2)
+    - [5.2 查询商品(按条件)](#52)
+      - [1. 接口名](#1)
+        - [Header](#header)
+        - [PathParameter](#pathparameter)
+        - [Payload](#payload)
+      - [2. 返回值](#2)
+    - [5.3.#.1 查询类型标签(label)](#531-label)
+      - [1. 接口名](#1)
+        - [Header](#header)
+      - [2. 返回值](#2)
+    - [5.3.#.2 修改类型标签(label)](#532-label)
+      - [1. 接口名](#1)
+        - [Header](#header)
+        - [Pathvariable](#pathvariable)
+        - [PathParameter](#pathparameter)
+        - [Payload](#payload)
+      - [2. 返回值](#2)
+    - [5.3 修改商品(first_rate)(label)(state)](#53-first-ratelabelstate)
+      - [1. 接口名](#1)
+        - [Header](#header)
+        - [PathParameter](#pathparameter)
+        - [Payload](#payload)
+      - [2. 返回值](#2)
+  - [or 401 token无效](#or-401-token)
+    - [5.4 查询商家(按条件)](#54)
+      - [1. 接口名](#1)
+        - [Header](#header)
+        - [PathParameter](#pathparameter)
+        - [Payload](#payload)
+      - [2. 返回值](#2)
+    - [5.5 (小黑屋)(解封)(设置等级=选择为精品)商家](#55)
+      - [1. 接口名](#1)
+        - [Header](#header)
+        - [PathParameter](#pathparameter)
+        - [Payload](#payload)
+      - [2. 返回值](#2)
+    - [5.6.#.1 查看走马灯](#561)
+      - [1. 接口名](#1)
+        - [Header](#header)
+      - [2. 返回值](#2)
+    - [5.6.#.2 删除走马灯中的文章](#562)
+      - [1. 接口名](#1)
+        - [Header](#header)
+        - [PathParameter](#pathparameter)
+      - [2. 返回值](#2)
+    - [5.6.#.3 设置走马灯](#563)
+      - [1. 接口名](#1)
+        - [Header](#header)
+        - [PathParameter](#pathparameter)
+        - [Payload](#payload)
+      - [2. 返回值](#2)
+  - [or 401 token无效](#or-401-token)
+
 `@SessionRequire`
 | 参数名    | 参数                       |
 | --------- | -------------------------- |
@@ -386,7 +489,7 @@ POST	 store?
   "avatar":(url),
   "level":(...)
 }
-``` -->
+​``` -->
 
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
@@ -409,7 +512,9 @@ GET admin/login?
 | username | 用户名 |
 | password | 密码 |
 #### 2. 返回值
+
 200
+
 ```json
 {
   "token":(String)令牌
@@ -441,12 +546,12 @@ token : ""
 | name       | (String) 模糊搜素         |
 | first_rate | true/false                      |
 | label      | (String)类型标签          |
-| state      | (String)当前商品状态<审核,售卖中,卖完了,下架>          |
+| state      | (String)当前商品状态<UNDERREVIEW("审核"),INSALE("售卖中"),SOLDOUT("卖完了"),OFFSALE("下架");>          |
 ##### Payload
 #### 2. 返回值
 200
 ```json
-{
+[{
   "images":[urls,],
   "name":(String)商品名(不超过12字),
   "description":(String)描述(不超过300字),
@@ -458,7 +563,7 @@ token : ""
   "openid":(String)店铺id,
   "firstRate":true/false,
   "thumbnail":(String)url,
-}
+}]
 ```
 or 400
 
@@ -467,7 +572,9 @@ or 400
   "error":(String)错误
 }
 ```
+
 or 401 token无效
+
 ----------------------------------------------------------------------
 
 ### 5.3.#.1 查询类型标签(label)
@@ -487,8 +594,11 @@ token : ""
     "parentName": string(name)
   },]
 ```
+
 or 401 token无效
+
 ----------------------------------------------------------------------
+
 ### 5.3.#.2 修改类型标签(label)
 
 #### 1. 接口名
@@ -496,7 +606,12 @@ put admin/label?
 ##### Header
 token : ""
 ##### Pathvariable
-{name}:分类名-原有的就为修改,没有的就为新增
+{}:
+##### PathParameter
+| 参数名     | 参数                      |
+| ---------- | ------------------------- |
+| name     | 分类名-原有的就为修改,没有的就为新增|
+
 ##### Payload
 ```json
 {
@@ -516,6 +631,7 @@ or 400
 }
 ```
 or 401 token无效
+
 ----------------------------------------------------------------------
 ### 5.3 修改商品(first_rate)(label)(state)
 
@@ -523,8 +639,11 @@ or 401 token无效
 put admin/commodity？
 ##### Header
 token : ""
-##### Pathvariable
-{commodityid}:商品id
+##### PathParameter
+| 参数名     | 参数                      |
+| ---------- | ------------------------- |
+| commodityid     | 商品id      |
+
 ##### Payload
 ```json
 {
@@ -558,7 +677,7 @@ token : ""
 | page       | page 分页查询中的哪一页   |
 | size       | size 分页查询中一页的大小 |
 | store_name | (String) 模糊搜素         |
-| store_state| (String)当前店铺状态<营业中,小黑屋>          |
+| store_state| (String)当前店铺状态<OPEN(营业中),CLOSED(小黑屋)>          |
 ##### Payload
 #### 2. 返回值
 200
@@ -582,16 +701,17 @@ or 400
 ```
 or 401 token无效
 
-
 ----------------------------------------------------------------------
 
 ### 5.5 (小黑屋)(解封)(设置等级=选择为精品)商家
 #### 1. 接口名
-PUT admin/store/{openid}
+PUT admin/store?
 ##### Header
 token : ""
-##### Pathvariable
-{openid}:商品id
+##### PathParameter
+| 参数名     | 参数                      |
+| ---------- | ------------------------- |
+| openid     | (String) 店铺 openid      |
 ##### Payload
 ```json
 {
@@ -614,6 +734,7 @@ token : ""
 ```
 
 or 401 token无效
+
 ----------------------------------------------------------------------
 ### 5.6.#.1 查看走马灯
 #### 1. 接口名
@@ -631,35 +752,42 @@ token : ""
 ```
 
 or 401 token无效
+
 ----------------------------------------------------------------------
 ### 5.6.#.2 删除走马灯中的文章
 #### 1. 接口名
-DELETE admin/swiper/{name}
+DELETE admin/swiper?
 ##### Header
 token : ""
-##### Pathvariable
-{name}:要删除的文章名
+##### PathParameter
+| 参数名     | 参数                      |
+| ---------- | ------------------------- |
+| name     | (String) 要删除的文章名      |
+
 #### 2. 返回值
 200
 
 or 404 要删除的不存在
 
 or 401 token无效
+
 ----------------------------------------------------------------------
 ### 5.6.#.3 设置走马灯
 #### 1. 接口名
-PUT admin/swiper/{name}
+PUT admin/swiper?
 ##### Header
 token : ""
-##### Pathvariable
-{name}:文章名-原有的就为修改,没有的就为新增
+##### PathParameter
+| 参数名     | 参数                      |
+| ---------- | ------------------------- |
+| name     | (String) 要删除的文章名      |
 ##### Payload
 ```json
-[{
+{
   "name":(String)文章名,
   "content":(String)文章,
   "cover":(String)封面url
-},]
+}
 ```
 #### 2. 返回值
 200
