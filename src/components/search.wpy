@@ -3,7 +3,7 @@
     <view class="search">
       <view class="serch_content">
         <i class="iconfont icon-search"></i>
-        <input type="text" name="search_input" bindinput="searchInput" class="search_input" focus="true" value="{{search_input_value}}" confirm-type="search" placeholder="搜索商品" />
+        <input type="text" name="search_input" bindinput="searchInput" class="search_input" focus="true" value="{{search_input_value}}" bindconfirm="search" confirm-type="search" placeholder="搜索商品" />
         <i wx:if="{{search_input_value!=''}}" @tap="delText" class="iconfont icon-del"></i>
       </view>
       <button class="btn btn_cancel" @tap="goBack()" wx:if="{{search_input_value==''}}">取消</button>
@@ -75,15 +75,17 @@
     }
     .btn {
       width: 120rpx;
-      height: 65rpx;
-      font-size: 20rpx; // line-height: 65rpx;
+      height: 55rpx;
+      font-size: 30rpx; // line-height: 65rpx;
+      line-height: 30rpx;
       margin-left: 20rpx;
-      padding-left: 5rpx;
-      padding-right: 5rpx;
+      padding:10rpx;
+      background: transparent;
     }
     .btn_search {
-      color: #fff;
-      background: #e2413c;
+      background: rgba(0, 81, 255, 0.787);
+      color: white;
+      box-shadow: 0 1rpx 30rpx rgba(0, 81, 255, 0.185);
     }
     .icon-del {
       height: 60rpx;

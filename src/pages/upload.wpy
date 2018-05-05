@@ -3,23 +3,49 @@
   <form bindsubmit="formSubmit">
     <view class="section">
       <view class="section_title">商品名称</view>
-      <input value="{{name}}" maxlength='12' name="name" type="text" placeholder="请输入您的商品名称" />
+      <input maxlength='12' name="name" type="text" placeholder="请输入您的商品名称" />
     </view>
     <view class="section">
       <view class="section_title">商品价格</view>
-      <input value="{{name}}" name="name" maxlength='10' type="digit" placeholder="请输入商品价格（单位：人民币）" />
+      <input name="price" maxlength='10' bindinput="bindDigitInput" placeholder="请输入商品价格（单位：人民币）" />
     </view>
     <view class="section">
       <view class="section_title">商品描述</view>
-      <textarea value="{{description}}" maxlength='300' name="description" type="text" placeholder="请在此处描述您的商品" />
+      <textarea maxlength='300' name="description" placeholder="请在此处描述您的商品" />
     </view>
     <view class="section">
       <view class="section_title">商品分类</view>
-      <input value="{{grade}}" name="grade" maxlength='10' type="text" placeholder="请输入您的年级" />
+      <picker class="picker" mode="multiSelector" bindchange="bindMultiPickerChange" bindcolumnchange="bindMultiPickerColumnChange" value="{{multiIndex}}" range="{{multiArray}}" range-key="name">
+        <view>
+          当前选择：{{multiArray[0][multiIndex[0]].name}}，{{multiArray[1][multiIndex[1]].name}}
+        </view>
+      </picker>
     </view>
     <view class="section">
       <view class="section_title">图片详情</view>
-      <input value="{{major}}" name="major" maxlength='10' type="text" placeholder="请输入您的院系" />
+      <view class="weui-uploader">
+        <view class="weui-uploader__hd">
+          <view>点击可预览选好的图片</view>
+          <view>{{imageList.length}}/{{count[countIndex]}}/5</view>
+        </view>
+        <view>
+          <block wx:for="{{imageList}}" wx:for-item="image">
+            <view class="weui-uploader__file">
+              <view class="view-upload-x" id="{{index}}" bindtap="deleteimage"> </view>
+              <image mode="aspectFill" class="weui-uploader__img" src="{{image}}" data-src="{{image}}" bindtap="previewImage"></image>
+            </view>
+          </block>
+        </view>
+        <view wx:if="{{imageList.length < 5}}" class="weui-uploader__input-box">
+          <view class="weui-uploader__input" bindtap="chooseImage"></view>
+        </view>
+        <view wx:if="{{imageList.length > 0}}" class="view-upload-x">
+          <view class="view-upload-x" bindtap="deleteimage"></view>
+        </view>
+      </view>
+    </view>
+    <view class="btn_comfire">
+      <button class="button type_yellow" formType="submit">完成</button>
     </view>
   </form>
 </template>
@@ -27,6 +53,7 @@
   import wepy from "wepy";
   import apiList from "../api/apiList";
   import tip from "../utils/tip";
+  import generateCommodityid from "../utils/commodityidUtils.js";
   import {
     USER_INFO
   } from "../utils/constant";
@@ -36,28 +63,14 @@
     };
     components = {};
     data = {
-      store_name: "",
-      introduction: "",
-      contact: "",
-      name: "",
-      grade: "",
-      major: "",
-      graduation: "",
+      multiArray: [
+        [],
+        []
+      ],
+      multiIndex: [0, 0],
       time: 60,
+      imageList: []
     };
-    // async sendVerifyCode() {
-    //   const json = await api.sendRandCode({
-    //     query: {
-    //       phone: this.phone
-    //     }
-    //   });
-    //   if (json.data.code == 0) {
-    //     tip.success("发送成功!");
-    //     that.$apply();
-    //   } else {
-    //     tip.error(json.data.msg);
-    //   }
-    // }
     bindGraduationChange(e) {
       this.graduation = e.detail.value;
     }
@@ -86,50 +99,131 @@
       }, 1000);
       // that.showLoading = false;
     }
-    onLoad() {
+    async onLoad() {
       let that = this;
+      const json = await apiList.getCategory();
+      console.log("cate", json);
+      that.multiArray = [json, json[0].children];
+      console.log(that.multiArray);
+      that.$apply();
+    }
+    bindMultiPickerColumnChange(e) {
+      this.multiIndex[e.detail.column] = e.detail.value;
+      if (e.detail.column === 0) {
+        this.multiIndex[1] = 0;
+        console.log(this.multiIndex);
+        this.multiArray[1] = this.multiArray[0][e.detail.value].children;
+      }
+    }
+    bindMultiPickerChange(e) {
+      this.multiIndex = e.detail.value;
+    }
+    async uploadCommodity(name, description, price) {
+      tip.loading();
+      let openid = ""
+      try {
+        openid = wx.getStorageSync("openid");
+      } catch (e) {
+        wx.switchTab('/pages/info');
+      }
+      let commodityid = await generateCommodityid(openid);
+      let formData = {
+        commodityid,
+        name,
+        description,
+        price,
+        label: this.multiArray[1][this.multiIndex[1]].name,
+        image_number: this.imageList.length,
+        openid
+      };
+
+      await console.log("image",this.imageList);
+      
+      
+      await apiList.uploadCommodity({
+        formData: formData,
+        imageList: this.imageList
+      });
+
+      tip.loaded();
+
+      await tip.success("上传成功",1000);
+      wx.navigateBack();
     }
     computed = {};
     methods = {
-      tmp() {
-        console.log("????");
-      }
-      // phoneInput(e) {
-      //   this.phone = e.detail.value;
-      // },
-      // sendCode(e) {
-      //   if (this.phone == "") {
-      //     tip.alert("输入手机号码");
-      //     return false;
-      //   }
-      //   this.sendVerifyCode();
-      //   let that = this;
-      //   that.sendMsgDisabled = true;
-      //   let interval = setInterval(() => {
-      //     if (that.time-- <= 0) {
-      //       that.time = 10;
-      //       that.sendMsgDisabled = false;
-      //       clearInterval(interval);
-      //       that.$apply();
-      //     }
-      //     that.$apply();
-      //   }, 1000);
-      // },
+      bindDigitInput: function(event){
+        console.log(event);
+        const oldValue=event.detail.value;
+        let newValue=oldValue;
+        newValue = newValue.replace(/[^\d.]/g,"");  //清除“数字”和“.”以外的字符  
+        newValue = newValue.replace(/\.{2,}/g,"."); //只保留第一个. 清除多余的  
+        newValue = newValue.replace(".","$#$").replace(/\./g,"").replace("$#$","."); 
+        newValue = newValue.replace(/^(\-)*(\d+)\.(\d\d).*$/,'$1$2.$3');//只能输入两个小数  
+        return newValue;
+      },
+      chooseImage: function() {
+        var that = this;
+        console.log("imageList", this.imageList);
+        wx.chooseImage({
+          sourceType: ['camera', 'album'],
+          sizeType: ['compressed'],
+          count: 5 - that.data.imageList.length,
+          success: function(res) {
+            that.imageList = [...that.data.imageList, ...res.tempFilePaths]
+            that.$apply()
+          }
+        })
+      },
+      previewImage: function(e) {
+        var current = e.target.dataset.src
+        wx.previewImage({
+          current: current,
+          urls: this.data.imageList
+        })
+      },
+      deleteimage: function(e) {
+        console.log(e.target.id);
+        var index1 = e.target.id === "" ? 0 : e.target.id;
+        var that = this
+        that.imageList = that.data.imageList.filter((items, index) => index != index1)
+        that.$apply()
+      },
     };
     formSubmit(e) {
-      let that = this;
       console.log(e);
-      let store_name = e.detail.value.store_name;
-      let contact = e.detail.value.contact;
-      if (store_name == "") {
-        tip.alert("输入店铺名");
+      let price = e.detail.value.price;
+      let description = e.detail.value.description;
+      let name = e.detail.value.name;
+      let imageList = this.imageList.slice(0);
+      let that = this;
+      if (price === "") {
+        tip.alert("请输入商品价格");
         return false;
       }
-      if (contact == "") {
-        tip.alert("输入联系方式");
+      if (description === "") {
+        tip.alert("请输入商品描述");
         return false;
       }
-      that.registerStore(e.detail.value);
+      if (name === "") {
+        tip.alert("请输入商品名称");
+        return false;
+      }
+      if (imageList.length === 0) {
+        tip.alert("请添加图片详情");
+        return false;
+      }
+      wx.showModal({
+        title: "上传确认",
+        content: `您确定要上传名为 ${name} 商品吗？`,
+        success: function(res) {
+          if (res.confirm) {
+            that.uploadCommodity(name, description, price);
+          } else if (res.cancel) {
+            console.log("用户点击取消");
+          }
+        }
+      });
     }
   }
 </script>
@@ -214,6 +308,10 @@
   .view-upload-x:active:after {
     background-color: #999999;
   }
+  .weui-uploader {
+    width: 500rpx;
+    padding: 10rpx 5rpx;
+  }
   .weui-uploader__input {
     position: absolute;
     z-index: 1;
@@ -252,8 +350,8 @@
   }
   .weui-uploader__img {
     display: block;
-    width: 79px;
-    height: 79px;
+    width: 140rpx;
+    height: 140rpx;
   }
   .weui-uploader__file_status {
     position: relative;
@@ -280,8 +378,8 @@
     position: relative;
     margin-right: 9px;
     margin-bottom: 9px;
-    width: 77px;
-    height: 77px;
+    width: 140rpx;
+    height: 140rpx;
     border: 1px solid #D9D9D9;
   }
   .weui-uploader__input-box:before,

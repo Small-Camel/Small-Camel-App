@@ -39,7 +39,8 @@
   import Placeholder from "../components/common/placeholder";
   export default class Home extends wepy.page {
     config = {
-      navigationBarTitleText: "小骆驼杂货铺"
+      navigationBarTitleText: "小骆驼杂货铺",
+      enablePullDownRefresh:true
     };
     components = {
       bottomLoadMore: BottomLoadMore,
@@ -58,7 +59,7 @@
       //是否有数据
       is_empty: false,
       //当前页面
-      currentPage: 1,
+      currentPage: 0,
       //总页数
       totalPages: 0,
       //是否显示 底部loading
@@ -84,17 +85,18 @@
       let that = this;
       //const json = await api.getGoodsList({
       const json = await apiList.getCommodityList({
-        page: currentPage || 1,
+        page: currentPage || 0,
         size: size || 10,
         first_rate: true
         // cateCode: this.catCode,
         // sort: this.sort,
         // skuval: this.skuval
       });
-      console.log(json);
+      console.log(json.data);
       that.list = [...that.list, ...json.content];
       console.log(json.content);
       that.totalPages = json.totalPages;
+      that.currentPage=that.currentPage++;
       if (json.totalElements == 0) {
         //暂无数据
         that.is_empty = true;
@@ -106,6 +108,14 @@
       let that = this;
       this.getAdList();
       this.getGoodList();
+    }
+    async onPullDownRefresh(){
+      let that=this;
+      that.list=[];
+      that.currentPage=0;
+      await that.getGoodList(0);
+      that.$apply();
+      wepy.stopPullDownRefresh();
     }
     computed = {};
     methods = {
@@ -145,7 +155,7 @@
     //加载更多优惠商品
     onReachBottom() {
       let that = this;
-      that.showLoading = true;
+      this.showLoading = true;
       console.log(that.totalPages + "===" + that.currentPage);
       //判断总页数是否大于翻页数
       if (that.totalPages > that.currentPage) {
@@ -161,6 +171,7 @@
       } else {
         that.showLoading = false;
       }
+      that.$apply();
     }
   }
 </script>

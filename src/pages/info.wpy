@@ -31,14 +31,14 @@
         </navigator>
       </view>
       <view class="info_block">
-        <navigator class="item" url="/pages/reorder">
+        <navigator class="item" url="/pages/register?store_name={{registedUserDetail.store_name}}&contact={{registedUserDetail.contact}}&introduction={{registedUserDetail.introduction}}&name={{registedUserDetail.name}}&grade={{registedUserDetail.grade}}&graduation={{registedUserDetail.graduation}}&major={{registedUserDetail.major}}">
           <view class="item_content">
             <image class="item_img" src="../images/icon_my_02.png"></image>
             <view class="text">商铺设置</view>
           </view>
           <view class="arrow">&gt;</view>
         </navigator>
-        <navigator class="item"  url="/pages/about">
+        <navigator class="item" url="/pages/about">
           <view class="item_content">
             <image class="item_img" src="../images/icon_my_05.png"></image>
             <view class="text">关于我们</view>
@@ -60,6 +60,7 @@
   import wepy from "wepy";
   import api from "../api/api";
   import apiList from "../api/apiList";
+  import tip from "../utils/tip";
   import {
     USER_INFO,
     USER_SPECICAL_INFO
@@ -75,45 +76,54 @@
       bShowBind: false,
       isLogin: false,
       isUser: false,
-      openid:"",
-      isOwner:true
+      openid: "",
+      isOwner: true,
+      registedUserDetail: null,
     };
     onLoad() {
-      this.onShow();
+      // this.onShow();
     }
     async onShow() {
       let that = this;
       await that.setLoginState();
-      that.openid=await wepy.getStorageSync('openid');
+      that.openid = await wepy.getStorageSync('openid');
       that.$apply();
       console.log(this.openid);
     }
     async setLoginState() {
+      tip.loading();
       let that = this;
       let userInfo = wepy.getStorageSync(USER_INFO);
       if (userInfo) {
         that.avatarUrl = userInfo.avatarUrl;
         that.nickName = userInfo.nickName;
-        that.openid=userInfo.openid;
+        that.openid = userInfo.openid;
         that.isLogin = true;
         const registedUserDetail = await apiList.getUserDetail();
         //用户尚未注册商户
-        console.log(registedUserDetail);
-        if (registedUserDetail.status >= 400) {
+        console.log("registedUserDetail in info", registedUserDetail);
+        if (registedUserDetail.statusCode >= 400) {
           console.log("普通用户");
+          that.isUser = false;
         } else {
           that.isUser = true;
+          that.registedUserDetail = registedUserDetail.data;
         }
       }
       that.$apply();
+      tip.loaded();
     }
     askForUserDetail() {
       const recordUserDetail = async(code, rawData, signature) => {
+        let that=this;
+        console.log("登陆");
         const openid = await apiList.login(code);
+        that.openid=openid;
         await wepy.setStorageSync('openid', openid);
         await wepy.setStorageSync('rawData', rawData);
         await wepy.setStorageSync('signature', signature);
-        this.setLoginState();
+        that.setLoginState();
+        that.$apply();
       };
       wx.login({
         success: async function(res) {

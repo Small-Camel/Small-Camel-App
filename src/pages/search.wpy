@@ -1,7 +1,8 @@
 <template>
   <view class="container">
-    <search @searchValue.user="doSearch"></search>
-    <filterBar wx:if="{{list.length>0||skuval !==''}}" @currentType.user="currentType"></filterBar>
+    <view wx:if="{{show}}">
+      <search @searchValue.user="doSearch"></search>
+    </view>
     <view wx:if="{{list.length>0}}">
       <!--矩阵商品列表模块-->
       <shopGridList :purchasetype.sync="purchasetype" :list.sync="list"></shopGridList>
@@ -9,18 +10,6 @@
       <bottomLoadMore :show.sync="showLoading" message="正在加载"></bottomLoadMore>
       <!--暂无数据显示-->
       <placeholder :show.sync="is_empty" message="暂无发现数据"></placeholder>
-
-    </view>
-    <view class="history {{show?'':'hidden'}}" wx:else>
-      <view class="doc">历史记录</view>
-      <view class="lable">
-        <view wx:for="{{keywordhisList}}" wx:key="item" @tap.stop="selHisKeyWord" data-id="{{item.id}}">
-          <view class="child {{item.sel=='1' ?'active':''}}">{{item.keyword}}</view>
-        </view>
-      </view>
-      <view class="btn_box">
-        <view class="button type_empity" @tap.stop="clearHis">清除历史记录</view>
-      </view>
     </view>
   </view>
 </template>
@@ -28,6 +17,7 @@
 <script>
   import wepy from 'wepy';
   import api from '../api/api';
+  import apiList from '../api/apiList';
   import tip from '../utils/tip'
   import {
     SYSTEM_INFO,
@@ -45,8 +35,8 @@
     }
     components = {
       search: Searchs,
-      filterBar: FilterBar,
-      filterSlider: FilterSlider,
+      // filterBar: FilterBar,
+      // filterSlider: FilterSlider,
       shopGridList: ShopGridList,
       bottomLoadMore: BottomLoadMore,
       placeholder: Placeholder
@@ -56,31 +46,18 @@
       showLoading: false,
       purchasetype: 1,
       is_empty: false,
-      is_filter:false,
+      is_filter: false,
       //当前页面
-      currentPage: 1,
+      currentPage: 0,
       //总页数
       page_total: 0,
       keyword: "",
       keywordhisList: [],
       cateCode: "",
-      show: true,
+      show: false,
       sort: -1,
       title: "",
       skuval: ""
-    }
-    async getKeyWordHisList() {
-      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-      let openId = userSpecialInfo.openid;
-      const json = await api.searchKeywordList({
-        query: {
-          openId: openId
-        }
-      });
-      if (json.data.code == 0) {
-        this.keywordhisList = json.data.list;
-      }
-      this.$apply();
     }
     setTitle(title) {
       wepy.setNavigationBarTitle({
@@ -90,69 +67,42 @@
     onLoad(option) {
       this.list = [];
       this.skuval = "";
-      this.cateCode = option.cateCode;
-      if (this.cateCode != undefined && this.cateCode.length > 0) { //分类进入
+      this.cateName = option.cateName;
+      if (this.cateName != undefined && this.cateName.length > 0) { //分类进入
         this.$invoke('search', 'show', "0");
         this.show = false;
-        this.doSearchGoods(this.cateCode);
-        this.title = "" + option.title;
-        this.setTitle("" + option.title);
+        this.doSearchGoods(this.cateName);
+        this.title = "" + option.cateName;
+        this.setTitle("" + option.cateName);
       } else { //搜索进入
         this.$invoke('search', 'show', "1");
         this.show = true;
-        this.getKeyWordHisList();
       }
     }
     computed = {}
     async doSearchGoods(keyword, currentPage, size) {
       let that = this;
-      const json = await api.getGoodsList({
-        query: {
-          page: currentPage || 1,
-          size: size || 10,
-          searchKeyWords: this.keyword,
-          cateCode: this.cateCode || "",
-          sort: this.sort,
-          skuval: this.skuval
-        }
-      });
-      if (json.data.code == 0) {
-        that.list = [...that.list, ...json.data.list];
-        that.page_total = json.data.page_total;
-        if (json.data.page_total == 0) {
-          //暂无数据
-          that.is_empty = true;
+      //判断keyword为分类还是名称，keyword为分类时show为false
+      let payload = {};
+      if (that.show) {
+        payload = {
+          name: keyword,
+          page: currentPage || 0,
+          size: size || 10
         }
       } else {
-        tip.error(json.data.msg);
+        payload = {
+          label: keyword,
+          page: currentPage || 0,
+          size: size || 10
+        }
       }
+      const json = await apiList.getCommodityList(payload);
+      that.list=[...that.list, ...json.content] ;
+      that.page_total=json.totalPages;
+
       that.showLoading = false;
       that.$apply();
-      if (keyword.length > 0) {
-        let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-        let openId = userSpecialInfo.openid;
-        const resultJson = await api.addSearchKeyword({
-          query: {
-            openId: openId,
-            keyword: keyword
-          }
-        });
-      }
-    }
-    async clearUserKeywords() {
-      let userSpecialInfo = wepy.getStorageSync(USER_SPECICAL_INFO) || {};
-      let openId = userSpecialInfo.openid;
-      const json = await api.clearSearchKeyword({
-        query: {
-          openId: openId
-        }
-      });
-      if (json.data.code == 0) {
-        this.keywordhisList = [];
-      } else {
-        tip.error(json.data.msg);
-      }
-      this.$apply();
     }
     methods = {
       doSearch(val) {
@@ -164,49 +114,6 @@
         this.doSearchGoods(val);
         //this.list = bb.result.products;
         //this.$apply();
-      },
-      currentType(obj) {
-        //tip.success("状态:" + obj);
-        var name = obj.name;
-        var type = obj.type;
-        if (name == "zhonghe") {
-          this.sort = -1;
-        } else if (name == "sale") {
-          this.sort = 3;
-        } else if (name == "price") {
-          if (type == "desc") {
-            this.sort = 2;
-          } else if (type == "asc") {
-            this.sort = 1;
-          }
-        } else if (name == "sku") {
-          this.skuval = type;
-        }
-        this.list = [];
-        this.is_empty = false;
-        this.showLoading = true;
-        //this.$invoke('search', 'show', "0");
-        this.show = false;
-        this.doSearchGoods(this.keyword);
-      },
-      selHisKeyWord(e) {
-        console.log(e);
-        var id = e.currentTarget.dataset.id;
-        var hisKeyword = "";
-        for (var i = 0; i < this.keywordhisList.length; i++) {
-          this.keywordhisList[i].sel = 0;
-          if (id == this.keywordhisList[i].id) {
-            hisKeyword = this.keywordhisList[i].keyword;
-            this.keywordhisList[i].sel = 1;
-          }
-        }
-        if (hisKeyword.length > 0) {
-          this.keyword = hisKeyword;
-          this.doSearchGoods(hisKeyword);
-        }
-      },
-      clearHis() {
-        this.clearUserKeywords();
       },
       onShareAppMessage: function(res) {
         if (res.from === 'button') {
@@ -238,7 +145,7 @@
         }
         that.preventRepeatReuqest = true;
         that.currentPage++;
-        that.doSearchGoods("", that.currentPage);
+        that.doSearchGoods(this.keyword, that.currentPage);
         that.preventRepeatReuqest = false;
       } else {
         that.showLoading = false;

@@ -11,7 +11,6 @@
   "author": "smail-camel",
   "license": "MIT",
   "dependencies": {
-    "mockjs": "^1.0.1-beta3",
     "promise-polyfill": "^7.1.1",
     "wepy": "^1.7.1",
     "wepy-async-function": "^1.4.5",

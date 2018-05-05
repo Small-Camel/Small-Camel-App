@@ -33,7 +33,8 @@
   import Placeholder from "../components/common/placeholder";
   export default class Home extends wepy.page {
     config = {
-      navigationBarTitleText: "商铺详情"
+      navigationBarTitleText: "商铺详情",
+      enablePullDownRefresh:true
     };
     components = {
       bottomLoadMore: BottomLoadMore,
@@ -83,6 +84,7 @@
         console.log("showDeleteButton", this.showDeleteButton);
       }
     }
+  
     //获得店铺信息
     async getStoreDetail(openid) {
       let that = this;
@@ -121,23 +123,61 @@
       that.showLoading = false;
       that.$apply();
     }
-    onLoad(option) {
-      this.openid = option.openid;
-      this.selectable = option.isOwner;
-      console.log(option.isOwner);
-      this.getStoreDetail(option.openid);
-      this.getGoodList(0, 10, option.openid);
+    async onPullDownRefresh(){
+      let that = this;
+      const openid=that.openid;
+
+      if(openid===undefined||openid===""){
+        that.openid= await wx.getStorageSync('openid');
+      }
+
+      that.list=[];
+      await that.getStoreDetail(openid);
+      await that.getGoodList(0, 10, that.openid);
+      that.currentPage=0;
+      that.selectedList=[];
+      that.showDeleteButton=false;
+      that.$apply();
+      wx.stopPullDownRefresh();
+    }
+    async onLoad(option) {
+      let that = this;
+      that.openid = option.openid;
+
+      if(option.openid===undefined||option.openid===""){
+        that.openid= await wx.getStorageSync('openid');
+      }
+
+      that.selectable = option.isOwner;
+      console.log(that.isOwner);
+      that.getStoreDetail(that.openid);
+      that.getGoodList(0, 10, that.openid);
+      that.$apply();
     };
     computed = {};
     methods = {
       deleteSelectedCommodity() {
         // const contentText
+        let that = this;
         wx.showModal({
           title: "下架商品",
-          content: `您选中了${this.selectedList.length}件商品，是否继续`,
+          content: `您选中了${that.selectedList.length}件商品，是否继续`,
           success: async function(res) {
             if (res.confirm) {
-              
+              tip.loading();
+              await apiList.deleteCommodity(that.selectedList);
+              let openid = ""
+              try {
+                openid = await wx.getStorageSync("openid");
+              } catch (e) {
+                wx.switchTab('/pages/info');
+              }
+              that.list=[];
+              that.selectedList=[];
+              that.showDeleteButton=false;
+              await that.$apply();
+              await tip.success("成功",1000);
+              wx.startPullDownRefresh();
             } else if (res.cancel) {
               console.log("用户点击取消");
             }

@@ -88,6 +88,7 @@
       this.graduation=e.detail.value;
     }
     async registerStore(value) {
+      tip.loading();
       let that = this;
       let userSpecialInfo = (await wepy.getStorageSync(USER_INFO)) || {};
       let openId = (await wepy.getStorageSync("openid")) || {};
@@ -98,22 +99,28 @@
         store_name: value.store_name,
         graduation: value.graduation,
         grade: value.grade,
-        major: value.grade,
-        name: value.grade,
-        introduction: value.grade,
+        major: value.major,
+        name: value.name,
+        introduction: value.introduction,
         avatar: avatar
       };
-      console.log(payload);
+      console.log("payload",payload);
       const json = await apiList.registAccount(payload);
-      tip.success("申请成功",1000)
-      await setTimeout(() => {
-        wepy.navigateBack();
-        that.$apply();
-      },1000);
+      await tip.success("申请成功",1000)
+      that.$apply();
+      wepy.navigateBack();
       // that.showLoading = false;
     }
-    onLoad() {
-      let that = this;
+    onLoad(option) {
+      console.log("option", option);
+      this.contact=option.contact;
+      this.grade=option.grade;
+      this.graduation=option.graduation;
+      this.introduction=option.introduction;
+      this.major=option.major;
+      this.name=option.name;
+      this.store_name=option.store_name;
+
     }
     computed = {};
     methods = {
