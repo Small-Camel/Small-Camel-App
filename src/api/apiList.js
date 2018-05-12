@@ -130,6 +130,30 @@ const login = async code => {
 //   setTimeout(2000);
 //   return;
 // };
+const newStore = async ({ formData, imageList }) => {
+  let isError = false;
+  try {
+    let userKeys = getUserKeys();
+    console.log("in1formData", formData);
+
+    for (let element in imageList) {
+      await wx.uploadFile({
+        url: basicUrl + `/store?` + userKeys,
+        filePath: imageList[element],
+        name: "file",
+        formData: formData,
+        success: function(res) {
+          console.log(res);
+          isError = false;
+        }
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+
+  return true;
+};
 
 const uploadCommodity = async ({ formData, imageList }) => {
   console.log("imageList", imageList);
@@ -350,6 +374,22 @@ const getArticleList= async ()=>{
   return json.data;
 }
 
+const getSchoolList = async ()=>{
+  return [
+    {
+      name:'兰州',
+      schoolList:[
+        {name:'兰州大学'},
+      ]
+    },{
+      name:'南京',
+      schoolList:[
+        {name:'南京大学'},
+      ]
+    }
+  ]
+}
+
 module.exports = {
   // getCommodityDetail: getCommodityDetailMock,
   // getCommodityList: getCommodityListMock,
@@ -369,5 +409,6 @@ module.exports = {
   registAccount,
   getStoreDetail,
   getCategory,
-  deleteCommodity
+  deleteCommodity,
+  getSchoolList,
 };

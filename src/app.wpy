@@ -2,7 +2,8 @@
 @import "./styles/base";
 @import "./styles/icon";
 @import "./styles/style";
-@import './plugins/wemark/wemark.wxss';
+@import "./styles/upload";
+
 
 </style>
 <script>
@@ -34,7 +35,8 @@ export default class extends wepy.app {
       'pages/about',
       'pages/license',
       'pages/register',
-      'pages/upload'
+      'pages/upload',
+      'pages/new_store'
     ],
     window: {
       backgroundTextStyle: 'dark',
@@ -48,24 +50,29 @@ export default class extends wepy.app {
     },
     "tabBar": {
       "color": "#999999",
-      "selectedColor": "#44cdfe",
+      "selectedColor": "#be985c",
       "backgroundColor": "#ffffff",
       "borderStyle": "white",
       "list": [{
         "pagePath": "pages/home",
         "text": "首页",
-        "iconPath": "images/icon_home.png",
-        "selectedIconPath": "images/icon_home_active.png"
+        "iconPath": "images/home.png",
+        "selectedIconPath": "images/home_active.png"
       }, {
         "pagePath": "pages/classify",
         "text": "分类",
-        "iconPath": "images/icon_classify.png",
-        "selectedIconPath": "images/icon_classify_active.png"
+        "iconPath": "images/classify.png",
+        "selectedIconPath": "images/classify_active.png"
+      }, {
+        "pagePath": "pages/new_store",
+        "text": "会话",
+        "iconPath": "images/message.png",
+        "selectedIconPath": "images/message_active.png"
       }, {
         "pagePath": "pages/info",
         "text": "我的",
-        "iconPath": "images/icon_info.png",
-        "selectedIconPath": "images/icon_info_active.png"
+        "iconPath": "images/info.png",
+        "selectedIconPath": "images/info_active.png"
       }]
     }
   }

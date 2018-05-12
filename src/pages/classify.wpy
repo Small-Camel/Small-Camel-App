@@ -16,8 +16,8 @@
       </scroll-view>
       <scroll-view class="classify_detail" scroll-y scroll-with-animation="true" style="height:{{windowHeight-50}}px">
         <view class="children">
-          <navigator hover-class="none" class="children_item" wx:for="{{category[selectedIndex].children}}" wx:for-item="item" wx:key="index" url="/pages/search?cateName={{item.name}}">
-            <image class="child_image" src="{{item.cover}}"></image>
+          <navigator hover-class="none" class="children_item" wx:for="{{category[selectedIndex].children}}" wx:for-item="item" wx:key="index" url="/pages/search?cateName={{category[selectedIndex].name}}-{{item.name}}">
+            <image class="child_image" src="{{item.cover}}?x-oss-process=style/xiaoluotuo-label"></image>
             <view class="child_name">{{item.name}}</view>
           </navigator>
         </view>
@@ -59,15 +59,8 @@
 
       that.$apply();
     }
+
     onLoad() {
-      // let that = this;
-      // //this.list = aa.data;
-      // let systemInfo = wx.getStorageSync(SYSTEM_INFO);
-      // this.windowHeight = systemInfo.windowHeight;
-      // this.$apply();
-      // console.log(aa);
-    }
-    onShow() {
       this.getCategory();
     }
     computed = {};

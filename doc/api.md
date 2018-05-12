@@ -18,17 +18,31 @@
         - [PathParameter](#pathparameter)
         - [Payload](#payload)
       - [2. 返回值](#2)
+  - [2. 店铺`NEW`](#2-new)
+    - [2.1 新建店铺](#21)
+      - [接口名](#)
+        - [PathParameter](#pathparameter)
+        - [Payload](#payload)
+      - [2. 返回值](#2)
+    - [2.2 查看店铺`NEW`](#22-new)
+      - [1. 接口名](#1)
+        - [PathParameter](#pathparameter)
+      - [2. 返回值](#2)
+    - [2.3 关闭商铺`NEW`](#23-new)
+      - [1. 接口名](#1)
+        - [PathParameter](#pathparameter)
+      - [2. 返回值](#2)
   - [2. 上传商品](#2)
     - [2.1 上传](#21)
       - [1. 接口名](#1)
         - [PathParameter](#pathparameter)
         - [Payload](#payload)
       - [2. 返回值](#2)
-    - [2.2 查看](#22)
+    - [2.2 查看 `change`](#22--change)
       - [1. 接口名](#1)
         - [PathParameter](#pathparameter)
       - [2. 返回值](#2)
-    - [2.2.1 查看商品详情](#221)
+    - [2.2.1 查看商品详情`CHANGE`](#221-change)
       - [1. 接口名](#1)
       - [2. 返回值](#2)
     - [2.3 下架商品](#23)
@@ -36,7 +50,7 @@
         - [PathParameter](#pathparameter)
       - [2. 返回值](#2)
   - [3. 店家](#3)
-    - [3.1 店家详情](#31)
+    - [3.1 店家详情`@deprecate`](#31-deprecate)
       - [1. 接口名](#1)
         - [PathParameter](#pathparameter)
       - [2. 返回值](#2)
@@ -44,64 +58,6 @@
     - [4.1 得到分类](#41)
       - [1. 接口名](#1)
       - [2. 返回值](#2)
-  - [5. 管理员](#5)
-    - [5.1 管理员登录](#51)
-      - [1. 接口名](#1)
-        - [Header](#header)
-        - [PathParameter](#pathparameter)
-      - [2. 返回值](#2)
-    - [5.2 查询商品(按条件)](#52)
-      - [1. 接口名](#1)
-        - [Header](#header)
-        - [PathParameter](#pathparameter)
-        - [Payload](#payload)
-      - [2. 返回值](#2)
-    - [5.3.#.1 查询类型标签(label)](#531-label)
-      - [1. 接口名](#1)
-        - [Header](#header)
-      - [2. 返回值](#2)
-    - [5.3.#.2 修改类型标签(label)](#532-label)
-      - [1. 接口名](#1)
-        - [Header](#header)
-        - [Pathvariable](#pathvariable)
-        - [PathParameter](#pathparameter)
-        - [Payload](#payload)
-      - [2. 返回值](#2)
-    - [5.3 修改商品(first_rate)(label)(state)](#53-first-ratelabelstate)
-      - [1. 接口名](#1)
-        - [Header](#header)
-        - [PathParameter](#pathparameter)
-        - [Payload](#payload)
-      - [2. 返回值](#2)
-  - [or 401 token无效](#or-401-token)
-    - [5.4 查询商家(按条件)](#54)
-      - [1. 接口名](#1)
-        - [Header](#header)
-        - [PathParameter](#pathparameter)
-        - [Payload](#payload)
-      - [2. 返回值](#2)
-    - [5.5 (小黑屋)(解封)(设置等级=选择为精品)商家](#55)
-      - [1. 接口名](#1)
-        - [Header](#header)
-        - [PathParameter](#pathparameter)
-        - [Payload](#payload)
-      - [2. 返回值](#2)
-    - [5.6.#.1 查看走马灯](#561)
-      - [1. 接口名](#1)
-        - [Header](#header)
-      - [2. 返回值](#2)
-    - [5.6.#.2 删除走马灯中的文章](#562)
-      - [1. 接口名](#1)
-        - [Header](#header)
-        - [PathParameter](#pathparameter)
-      - [2. 返回值](#2)
-    - [5.6.#.3 设置走马灯](#563)
-      - [1. 接口名](#1)
-        - [Header](#header)
-        - [PathParameter](#pathparameter)
-        - [Payload](#payload)
-      - [2. 返回值](#2)
-  - [or 401 token无效](#or-401-token)
 
 `@SessionRequire`
 | 参数名    | 参数                       |
@@ -119,9 +75,9 @@
 
 ## 1.注册登陆
 
-### 1.1 注册
+### 1.1 注册`CHANGE`
 
-#### 1. 接口名
+#### 1. 接口名 
 
 POST user
 
@@ -136,13 +92,12 @@ POST 参数
 {
   "openid":(String)登陆时服务器返还,
   "contact":(String)联系方式,
-  "store_name":(String)店铺名,
   "graduation":(String yyyy-MM-dd)毕业时间,
   "grade":年级,
   "major":院系,
   "name":姓名,
-  "introduction":店铺介绍,
   "avatar":(url)
+  "location":(string)学校名
 }
 ```
 
@@ -238,9 +193,135 @@ wx.login({
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 
+
+
+## 2. 店铺`NEW`
+
+### 2.1 新建店铺
+
+#### 接口名
+
+POST store
+
+##### PathParameter
+
+`@SessionRequire`
+
+##### Payload
+
+POST 参数
+
+```json
+wx.chooseImage({
+  success: function(res) {
+    var tempFilePaths = res.tempFilePaths
+    wx.uploadFile({
+      url: 'https://example.weixin.qq.com/upload', //仅为示例，非真实的接口地址
+      filePath: tempFilePaths[0],
+      name: 'file',
+      formData:{  
+         "store_name":(String)店铺名(不超过12字),
+         "description":(String)店铺描述(不超过300字),
+         "storeid":(String)店铺id,
+         "location":店铺所在学校,
+      }
+      success: function(res){
+        var data = res.data
+        //do something
+      }
+    })
+  }
+})
+```
+#### 2. 返回值
+
+```json
+{
+  "error":(String)错误
+}
+```
+
+### 2.2 查看店铺`NEW`
+
+#### 1. 接口名
+
+GET storeList？
+
+##### PathParameter
+
+| 参数名     | 参数                      |
+| ---------- | ------------------------- |
+| page       | page 分页查询中的哪一页   |
+| size       | size 分页查询中一页的大小 |
+| name       | (String) 模糊搜素         |
+| first_rate | true                      |
+| store_id   | 店铺id                    |
+| open_id    | 某用户的全部店铺          |
+| location   | (string)                  |
+
+
+#### 2. 返回值
+
+```json
+{
+  "content": [
+    {
+      "storeid": "idtest",
+      "description": "(String)店铺描述(不超过300字)",
+      "store_name": "2(String)店铺名(不超过12字)",
+      "location": "兰州大学",
+      "cover":
+        "http://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/xiaoluotuo/idtest1995365.jpg?x-oss-process=style/xiaoluotuo-thumbnail" （店铺封面）
+    },
+  ],
+  "pageable": {
+    "sort": { "sorted": true, "unsorted": false },
+    "offset": 0,
+    "pageNumber": 0,
+    "pageSize": 2,
+    "paged": true,
+    "unpaged": false
+  },
+  "totalPages": 1,
+  "totalElements": 2,
+  "last": true,
+  "number": 0,
+  "size": 2,
+  "sort": { "sorted": true, "unsorted": false },
+  "numberOfElements": 2,
+  "first": true
+}
+```
+
+----------------------------------------------------------------------
+
+### 2.3 关闭商铺`NEW`
+
+#### 1. 接口名
+
+DELETE store?
+
+##### PathParameter
+
+`@SessionRequire`
+
+| 参数名  | 参数             |
+| ------- | ---------------- |
+| storeid | (String) 商品 ID |
+
+#### 2. 返回值
+
+```json
+{
+  "error":(String)错误
+}
+```
+
+
+
 ## 2. 上传商品
 
-### 2.1 上传
+### 2.1 上传`CHANGE`
 
 #### 1. 接口名
 
@@ -269,7 +350,7 @@ wx.chooseImage({
   		  "label":(String)标签,分类,
         "commodityid":(String)商品id,
         "price":number,
-        "openid":(String)商店id,
+        "storeid":(String)商店id,
       }
       success: function(res){
         var data = res.data
@@ -290,7 +371,7 @@ wx.chooseImage({
 
 ----------------------------------------------------------------------
 
-### 2.2 查看
+### 2.2 查看 `change`
 
 #### 1. 接口名
 
@@ -300,7 +381,7 @@ GET commodityList？
 
 | 参数名     | 参数                      |
 | ---------- | ------------------------- |
-| openid     | (String) 店铺 openid      |
+| storeid     | (String) 店铺 storeid      |
 | page       | page 分页查询中的哪一页   |
 | size       | size 分页查询中一页的大小 |
 | name       | (String) 模糊搜素         |
@@ -320,7 +401,7 @@ GET commodityList？
       "price": 8888.0,
       "label": "2(String)标签, 分类",
       "name": "2(String)商品名(不超过12字)",
-      "openid": "admin",
+      "storeid": "admin",
       "thumbnail":
         "http://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/xiaoluotuo/idtest1995365.jpg?x-oss-process=style/xiaoluotuo-thumbnail"
     },
@@ -329,7 +410,7 @@ GET commodityList？
       "price": 8888.0,
       "label": "(String)标签, 分类",
       "name": "(String)商品名(不超过12字)",
-      "openid": "admin",
+      "storeid": "admin",
       "thumbnail":
         "http://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/xiaoluotuo/testid1234561436990.jpg?x-oss-process=style/xiaoluotuo-thumbnail"
     }
@@ -355,7 +436,7 @@ GET commodityList？
 
 ----------------------------------------------------------------------
 
-### 2.2.1 查看商品详情
+### 2.2.1 查看商品详情`CHANGE`
 
 #### 1. 接口名
 
@@ -377,11 +458,12 @@ GET commodity？
   "commodityid":(String)commodityid,
   "price":number,
 
-  "contact":(String)联系方式,
-  "store_name":(String)店铺名,
-  "openid":(String)店铺id,
-  "introduction":店铺介绍,
-  "avatar":(url)
+  "store_detail":{
+    "store_name":(String)店铺名,
+    "storeid":(String)店铺id,
+    "description":店铺介绍,
+    "cover":(url)
+  }
 }
 ```
 
@@ -410,11 +492,11 @@ DELETE commodity?
 ```
 
 ----------------------------------------------------------------------
-----------------------------------------------------------------------
+
 
 ## 3. 店家
 
-### 3.1 店家详情
+### 3.1 店家详情`@deprecate`
 
 #### 1. 接口名
 
@@ -422,9 +504,9 @@ GET store?
 
 ##### PathParameter
 
-| 参数名 | 参数           |
-| ------ | -------------- |
-| openid | (String) 店 ID |
+| 参数名  | 参数           |
+| ------- | -------------- |
+| storeid | (String) 店 ID |
 
 #### 2. 返回值
 
@@ -489,7 +571,7 @@ POST	 store?
   "avatar":(url),
   "level":(...)
 }
-​``` -->
+```
 
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
@@ -515,7 +597,7 @@ GET admin/login?
 
 200
 
-```json
+​```json
 {
   "token":(String)令牌
 }
@@ -523,7 +605,7 @@ GET admin/login?
 
 or 403
 
-```json
+​```json
 {
   "error":(String)错误
 }
