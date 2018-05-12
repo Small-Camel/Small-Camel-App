@@ -2,19 +2,15 @@
 <template>
   <form bindsubmit="formSubmit">
     <view class="section">
-      <view class="section_title">商品名称</view>
+      <view class="section_title">店铺名称</view>
       <input maxlength='12' name="name" type="text" placeholder="请输入您的商品名称" />
     </view>
     <view class="section">
-      <view class="section_title">商品价格</view>
-      <input name="price" maxlength='10' bindinput="bindDigitInput" placeholder="请输入商品价格（单位：人民币）" />
-    </view>
-    <view class="section">
-      <view class="section_title">商品描述</view>
+      <view class="section_title">店铺描述</view>
       <textarea maxlength='300' name="description" placeholder="请在此处描述您的商品" />
     </view>
     <view class="section">
-      <view class="section_title">商品分类</view>
+      <view class="section_title">所在学校</view>
       <picker class="picker" mode="multiSelector" bindchange="bindMultiPickerChange" bindcolumnchange="bindMultiPickerColumnChange" value="{{multiIndex}}" range="{{multiArray}}" range-key="name">
         <view>
           当前选择：{{multiArray[0][multiIndex[0]].name}}，{{multiArray[1][multiIndex[1]].name}}
@@ -22,12 +18,8 @@
       </picker>
     </view>
     <view class="section">
-      <view class="section_title">图片详情</view>
+      <view class="section_title">上传封面</view>
       <view class="weui-uploader">
-        <view class="weui-uploader__hd">
-          <view>点击可预览选好的图片</view>
-          <view>{{imageList.length}}/{{count[countIndex]}}/5</view>
-        </view>
         <view>
           <block wx:for="{{imageList}}" wx:for-item="image">
             <view class="weui-uploader__file">
@@ -53,13 +45,13 @@
   import wepy from "wepy";
   import apiList from "../api/apiList";
   import tip from "../utils/tip";
-  import generateCommodityid from "../utils/commodityidUtils.js";
+  import generateStoreid from "../utils/idUtils.js";
   import {
     USER_INFO
   } from "../utils/constant";
-  export default class UploadCommodity extends wepy.page {
+  export default class NewStore extends wepy.page {
     config = {
-      navigationBarTitleText: "上传商品"
+      navigationBarTitleText: "新增店铺"
     };
     components = {};
     data = {
@@ -74,36 +66,11 @@
     bindGraduationChange(e) {
       this.graduation = e.detail.value;
     }
-    async registerStore(value) {
-      let that = this;
-      let userSpecialInfo = (await wepy.getStorageSync(USER_INFO)) || {};
-      let openId = (await wepy.getStorageSync("openid")) || {};
-      let avatar = userSpecialInfo.avatarUrl;
-      const payload = {
-        openid: openId,
-        contact: value.contact,
-        store_name: value.store_name,
-        graduation: value.graduation,
-        grade: value.grade,
-        major: value.grade,
-        name: value.grade,
-        introduction: value.grade,
-        avatar: avatar
-      };
-      console.log(payload);
-      const json = await apiList.registAccount(payload);
-      tip.success("申请成功", 1000)
-      await setTimeout(() => {
-        wepy.navigateBack();
-        that.$apply();
-      }, 1000);
-      // that.showLoading = false;
-    }
     async onLoad() {
       let that = this;
-      const json = await apiList.getCategory();
+      const json = await apiList.getSchoolList();
       console.log("cate", json);
-      that.multiArray = [json, json[0].children];
+      that.multiArray = [json, json[0].schoolList];
       console.log(that.multiArray);
       that.$apply();
     }
@@ -112,13 +79,13 @@
       if (e.detail.column === 0) {
         this.multiIndex[1] = 0;
         console.log(this.multiIndex);
-        this.multiArray[1] = this.multiArray[0][e.detail.value].children;
+        this.multiArray[1] = this.multiArray[0][e.detail.value].schoolList;
       }
     }
     bindMultiPickerChange(e) {
       this.multiIndex = e.detail.value;
     }
-    async uploadCommodity(name, description, price) {
+    async createStore(store_name, description) {
       tip.loading();
       let openid = ""
       try {
@@ -128,13 +95,10 @@
       }
       let commodityid = await generateCommodityid(openid);
       let formData = {
-        commodityid,
-        name,
+        storeid,
+        store_name,
         description,
-        price,
-        label: `${this.multiArray[0][this.multiIndex[0]].name}-${this.multiArray[1][this.multiIndex[1]].name}`,
-        image_number: this.imageList.length,
-        openid
+        location: this.multiArray[1][this.multiIndex[1]].name,
       };
 
       await console.log("image",this.imageList);
@@ -168,7 +132,7 @@
         wx.chooseImage({
           sourceType: ['camera', 'album'],
           sizeType: ['compressed'],
-          count: 5 - that.data.imageList.length,
+          count: 1 - that.data.imageList.length,
           success: function(res) {
             that.imageList = [...that.data.imageList, ...res.tempFilePaths]
             that.$apply()
@@ -192,33 +156,28 @@
     };
     formSubmit(e) {
       console.log(e);
-      let price = e.detail.value.price;
       let description = e.detail.value.description;
       let name = e.detail.value.name;
       let imageList = this.imageList.slice(0);
       let that = this;
-      if (price === "") {
-        tip.alert("请输入商品价格");
-        return false;
-      }
       if (description === "") {
         tip.alert("请输入商品描述");
         return false;
       }
       if (name === "") {
-        tip.alert("请输入商品名称");
+        tip.alert("请输入商铺名称");
         return false;
       }
       if (imageList.length === 0) {
-        tip.alert("请添加图片详情");
+        tip.alert("请添加商铺封面");
         return false;
       }
       wx.showModal({
-        title: "上传确认",
-        content: `您确定要上传名为 ${name} 的商品吗？`,
+        title: "新增确认",
+        content: `您确定要新增名为 ${name} 的店铺吗？`,
         success: function(res) {
           if (res.confirm) {
-            that.uploadCommodity(name, description, price);
+            that.createStore(name, description, price);
           } else if (res.cancel) {
             console.log("用户点击取消");
           }

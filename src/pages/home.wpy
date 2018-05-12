@@ -11,7 +11,7 @@
     <swiper class="swiper" indicator-active-color="{{indicatorActiveColor}}" indicator-dots="{{indicatorDots}}" autoplay="{{autoplay}}" interval="{{interval}}" duration="{{duration}}" circular="true">
       <block wx:for="{{adList}}" wx:key="key">
         <swiper-item>
-          <image src="{{item.picUrl}}" class="slide-image" @tap="goToAdvert({{item.advertUrl}})" />
+          <image src="{{item.picUrl}}" class="slide-image" />
         </swiper-item>
       </block>
     </swiper>
@@ -72,13 +72,16 @@
       is_show_alert: true
     };
     async getAdList() {
-      const json = await api.getAdList({
-        query: {}
-      });
-      if (json.data.code == 0) {
-        this.adList = json.data.list;
+        this.adList = [{
+          picUrl:"http://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/swiper/%E6%9C%AA%E6%A0%87%E9%A2%98-1.jpg"
+        },{
+          picUrl:"http://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/swiper/%E6%9C%AA%E6%A0%87%E9%A2%98-21.jpg"
+        },{
+          picUrl:"http://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/swiper/%E6%9C%AA%E6%A0%87%E9%A2%98-31.jpg"
+        },{
+          picUrl:"http://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/swiper/%E6%9C%AA%E6%A0%87%E9%A2%98-41.jpg"
+        },];
         this.$apply();
-      } else {}
     }
     //获得商品列表
     async getGoodList(currentPage, size) {
