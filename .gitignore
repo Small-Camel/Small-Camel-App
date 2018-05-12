@@ -23,3 +23,7 @@ node_modules
 *.iws
 
 *.wepycache
+doc/api.pdf
+doc/api.html
+doc/api.jpeg
+doc/api.png
