@@ -755,7 +755,7 @@ token : ""
 ##### PathParameter
 | 参数名     | 参数                      |
 | ---------- | ------------------------- |
-| openid     | (String) 店铺 openid      |
+| storeid     | (String) 店铺 storeid      |
 | page       | page 分页查询中的哪一页   |
 | size       | size 分页查询中一页的大小 |
 | store_name | (String) 模糊搜素         |
@@ -765,7 +765,7 @@ token : ""
 200
 ```json
 {
-  "openid":(String)店铺id,
+  "storeid":(String)店铺id,
   "contact":(String)联系方式,
   "store_name":(String)店铺名,
   "introduction":店铺介绍,
