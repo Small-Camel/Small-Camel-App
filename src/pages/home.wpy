@@ -8,6 +8,7 @@
         </navigator>
       </view>
     </view>
+    <button @tap="tmp()">SOCKET</button>
     <swiper class="swiper" indicator-active-color="{{indicatorActiveColor}}" indicator-dots="{{indicatorDots}}" autoplay="{{autoplay}}" interval="{{interval}}" duration="{{duration}}" circular="true">
       <block wx:for="{{adList}}" wx:key="key">
         <swiper-item>
@@ -15,10 +16,46 @@
         </swiper-item>
       </block>
     </swiper>
-    <view class="recommend-title">商品推荐</view>
+    <view class="nav_list">
+      <navigator open-type="navigate" url="/pages/search?cateName=吃不是罪">
+        <image src="https://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/label/%E5%88%86%E7%B1%BB/%E9%9B%B6%E9%A3%9F.png" class="nav_icon"></image>
+        <view class="nav_text">零食</view>
+      </navigator>
+      <navigator open-type="navigate" url="/pages/search?cateName=吃不是罪">
+        <image src="https://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/label/%E5%88%86%E7%B1%BB/%E7%BE%8E%E5%A6%86.png" class="nav_icon"></image>
+        <view class="nav_text">美妆</view>
+      </navigator>
+      <navigator open-type="navigate" url="/pages/search?cateName=吃不是罪">
+        <image src="https://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/label/%E5%88%86%E7%B1%BB/%E7%A9%BF%E6%90%AD.png" class="nav_icon"></image>
+        <view class="nav_text">穿搭</view>
+      </navigator>
+      <navigator open-type="navigate" url="/pages/search?cateName=吃不是罪">
+        <image src="https://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/label/%E5%88%86%E7%B1%BB/%E6%8A%80%E8%83%BD.png" class="nav_icon"></image>
+        <view class="nav_text">技能</view>
+      </navigator>
+    </view>
+    <view class="nav_list">
+      <navigator open-type="navigate" url="/pages/search?cateName=吃不是罪">
+        <image src="https://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/label/%E5%88%86%E7%B1%BB/%E4%BB%A3%E8%B4%AD.png" class="nav_icon"></image>
+        <view class="nav_text">代购</view>
+      </navigator>
+      <navigator open-type="navigate" url="/pages/search?cateName=吃不是罪">
+        <image src="https://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/label/%E5%88%86%E7%B1%BB/%E7%A7%9F%E5%80%9F.png" class="nav_icon"></image>
+        <view class="nav_text">租借</view>
+      </navigator>
+      <navigator open-type="navigate" url="/pages/search?cateName=吃不是罪">
+        <image src="https://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/label/%E5%88%86%E7%B1%BB/%E4%BA%8C%E6%89%8B.png" class="nav_icon"></image>
+        <view class="nav_text">二手</view>
+      </navigator>
+      <navigator open-type="navigate" url="/pages/search?cateName=吃不是罪">
+        <image src="https://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/label/%E6%8A%80%E8%83%BD/%E5%85%B6%E4%BB%96.png" class="nav_icon"></image>
+        <view class="nav_text">其他</view>
+      </navigator>
+    </view>
+    <view class="recommend-title">- 精品商铺 -</view>
     <view class="shop_list">
       <!--矩阵商品列表模块-->
-      <shopGridList :purchasetype.sync="purchasetype" :list.sync="list"></shopGridList>
+      <storeList :list.sync="list"></storeList>
       <!--加载更多时动画-->
       <bottomLoadMore :show.sync="showLoading" message="正在加载"></bottomLoadMore>
       <!--暂无数据显示-->
@@ -34,18 +71,18 @@
   import apiList from "../api/apiList"
   import api from "../api/api";
   import tip from "../utils/tip";
-  import ShopGridList from '../components/shop_grid_list'
+  import StoreList from '../components/store_list'
   import BottomLoadMore from "../components/common/bottomLoadMore";
   import Placeholder from "../components/common/placeholder";
   export default class Home extends wepy.page {
     config = {
-      navigationBarTitleText: "小骆驼杂货铺",
-      enablePullDownRefresh:true
+      navigationBarTitleText: "小骆驼校园",
+      enablePullDownRefresh: true
     };
     components = {
       bottomLoadMore: BottomLoadMore,
       placeholder: Placeholder,
-      shopGridList: ShopGridList
+      storeList: StoreList
     };
     data = {
       //swiper
@@ -54,7 +91,6 @@
       interval: 3000,
       duration: 1500,
       list: [],
-      purchasetype: 1,
       indicatorActiveColor: "#fff",
       //是否有数据
       is_empty: false,
@@ -72,22 +108,22 @@
       is_show_alert: true
     };
     async getAdList() {
-        this.adList = [{
-          picUrl:"http://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/swiper/%E6%9C%AA%E6%A0%87%E9%A2%98-1.jpg"
-        },{
-          picUrl:"http://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/swiper/%E6%9C%AA%E6%A0%87%E9%A2%98-21.jpg"
-        },{
-          picUrl:"http://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/swiper/%E6%9C%AA%E6%A0%87%E9%A2%98-31.jpg"
-        },{
-          picUrl:"http://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/swiper/%E6%9C%AA%E6%A0%87%E9%A2%98-41.jpg"
-        },];
-        this.$apply();
+      this.adList = [{
+        picUrl: "http://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/swiper/%E6%9C%AA%E6%A0%87%E9%A2%98-1.jpg"
+      }, {
+        picUrl: "http://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/swiper/%E6%9C%AA%E6%A0%87%E9%A2%98-21.jpg"
+      }, {
+        picUrl: "http://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/swiper/%E6%9C%AA%E6%A0%87%E9%A2%98-31.jpg"
+      }, {
+        picUrl: "http://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/swiper/%E6%9C%AA%E6%A0%87%E9%A2%98-41.jpg"
+      }, ];
+      this.$apply();
     }
     //获得商品列表
-    async getGoodList(currentPage, size) {
+    async getStoreList(currentPage, size) {
       let that = this;
       //const json = await api.getGoodsList({
-      const json = await apiList.getCommodityList({
+      const json = await apiList.getStoreList({
         page: currentPage || 0,
         size: size || 10,
         first_rate: true
@@ -99,10 +135,12 @@
       that.list = [...that.list, ...json.content];
       console.log(json.content);
       that.totalPages = json.totalPages;
-      that.currentPage=that.currentPage++;
-      if (json.totalElements == 0) {
+      that.currentPage = that.currentPage++;
+      if (that.list.length === 0) {
         //暂无数据
         that.is_empty = true;
+      }else{
+        that.is_empty = false;        
       }
       that.showLoading = false;
       that.$apply();
@@ -110,18 +148,21 @@
     onLoad() {
       let that = this;
       this.getAdList();
-      this.getGoodList();
+      this.getStoreList();
     }
-    async onPullDownRefresh(){
-      let that=this;
-      that.list=[];
-      that.currentPage=0;
-      await that.getGoodList(0);
+    async onPullDownRefresh() {
+      let that = this;
+      that.list = [];
+      that.currentPage = 0;
+      await that.getStoreList(0);
       that.$apply();
       wepy.stopPullDownRefresh();
     }
     computed = {};
     methods = {
+      tmp(){
+        apiList.initSocket();
+      },
       goToAdvert(url) {
         console.log("url===" + url);
         if (url.length == 0) {
@@ -168,8 +209,7 @@
         }
         that.preventRepeatRequest = true;
         that.currentPage++;
-        
-        that.getGoodList(that.currentPage);
+        that.getStoreList(that.currentPage);
         that.preventRepeatRequest = false;
       } else {
         that.showLoading = false;
@@ -182,6 +222,7 @@
 <style lang="less">
   .swiper {
     height: 348rpx;
+    margin-bottom: 20rpx;
   }
   .slide-image {
     width: 100%;
@@ -212,11 +253,16 @@
       margin-bottom: 14rpx;
     }
     .nav_text {
-      font-size: 26rpx;
+      font-size: 24rpx;
+      color: rgba(0, 0, 0, 0.582);
     }
   }
   .recommend-title {
-    padding: 40rpx 0;
+    width:100%;
+    margin-top: 20rpx;
+    font-weight: bold;
+    background-color: rgba(64, 64, 64, 0.068);
+    padding: 20rpx 0;
     text-align: center;
     color: #333;
   }

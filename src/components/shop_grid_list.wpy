@@ -19,6 +19,7 @@
                     <view class="sale_num">销量{{item.saleCount}}件</view> -->
             </view>
           </view>
+          
         </navigator>
       </view>
     </checkbox-group>
@@ -31,12 +32,6 @@
       list: {
         default: [],
         twoWay:true        
-      },
-      purchasetype: {
-        default: 1 //类型:1-商品订单;2-商品补单;
-      },
-      special: {
-        default: 0 //0-正常入库;1-特价专区和换货专区
       },
       showTitle: {
         default: true

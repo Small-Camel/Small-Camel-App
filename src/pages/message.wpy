@@ -1,0 +1,120 @@
+<template>
+  <view class="container">
+    <view class="store_intro">
+      <image class="avatarUrl" src="https://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/label/%E5%A4%B4%E5%83%8F/61813571_p0.png?x-oss-process=style/xiaoluotuo-label"></image>
+      <view class="store_text">
+        <view class="store_name">小白大王</view>
+        <view>在吗？</view>
+      </view>
+    </view>
+        <view class="store_intro">
+      <image class="avatarUrl" src="https://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/label/%E5%A4%B4%E5%83%8F/62056884_p2_master1200.jpg?x-oss-process=style/xiaoluotuo-label"></image>
+      <view class="store_text">
+        <view class="store_name">小白大王</view>
+        <view>在吗？</view>
+      </view>
+    </view>
+    <view class="store_intro">
+      <image class="avatarUrl" src="https://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/label/%E5%A4%B4%E5%83%8F/pixiv40971444_waifu2x_art_noise1_scale_tta_1.png?x-oss-process=style/xiaoluotuo-label"></image>
+      <view class="store_text">
+        <view class="store_name">小白大王</view>
+        <view>在吗？</view>
+      </view>
+    </view>
+    </view>
+</template>
+
+<script>
+  import wepy from "wepy";
+  export default class Home extends wepy.page {
+    config = {
+      navigationBarTitleText: "消息",
+      enablePullDownRefresh:true
+    };
+    components = {
+    };
+    data = {
+      //openid;
+    };
+  }
+</script>
+
+<style lang="less">
+  .store_intro {
+    width: 600rpx;
+    margin: 50rpx auto;
+    background: white;
+    border-radius: 10rpx;
+    box-shadow: 0 10rpx 50rpx rgba(0, 0, 0, 0.055);
+    display: flex;
+    flex: 1 1 0%;
+    .store_text {
+      flex: 1 1 0%;
+      margin: 30rpx;
+      margin-left: 0;
+    }
+    view {
+      font-size: 25rpx;
+      margin-bottom: 20rpx;
+    }
+    .store_name {
+      font-size: 30rpx;
+      font-weight: bold;
+      color: black;
+      margin-bottom: 20rpx;
+    }
+    .avatarUrl {
+      width: 110rpx;
+      height: 110rpx;
+      margin: 30rpx;
+      border-radius: 1000px;
+      background: white;
+    }
+  }
+  .pos {
+    // position: fixed;
+    background: white;
+    padding: 20rpx 0;
+    width: 100%;
+    .search_read_only .search_content {
+      width: 100%;
+    }
+  }
+  .nav_list {
+    color: #404040;
+    display: flex;
+    font-size: 26rpx;
+    justify-content: space-between;
+    padding: 17rpx 50rpx;
+    navigator {
+      text-align: center;
+    }
+    .nav_icon {
+      height: 80rpx;
+      margin: 0 auto;
+      width: 80rpx;
+      margin-bottom: 14rpx;
+    }
+    .nav_text {
+      font-size: 26rpx;
+    }
+  }
+  .recommend-title {
+    padding: 40rpx 0;
+    text-align: center;
+    color: #333;
+  }
+  .container {
+    background: transparent;
+  }
+  .delete-button {
+    border-radius: 0;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    right: 0;
+  }
+  .store_list {
+    margin-bottom: 130rpx
+  }
+</style>

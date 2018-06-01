@@ -10,6 +10,14 @@
       <view class="section_title">联系方式</view>
       <textarea value="{{contact}}" maxlength='100' name="contact" type="text" placeholder="这是买家与您联系的唯一方式,可以留下多条, 建议格式为  qq:1234567" />
     </view>
+    <view class="section">
+      <view class="section_title">所在学校</view>
+      <picker class="picker" mode="multiSelector" bindchange="bindMultiPickerChange" bindcolumnchange="bindMultiPickerColumnChange" value="{{multiIndex}}" range="{{multiArray}}" range-key="name">
+        <view>
+          当前选择：{{multiArray[0][multiIndex[0]].name}}，{{multiArray[1][multiIndex[1]].name}}
+        </view>
+      </picker>
+    </view>
     <view class="block_label">*选填*</view>
     <view class="section">
       <view class="section_title">店铺介绍</view>
@@ -36,6 +44,7 @@
       </picker>
       <!-- <input value="{{graduation}}" name="graduation" type="text" placeholder="请输入您的毕业时间"/> -->
     </view>
+    
     <!--    <view class="section">
             <view class="section_title">验证码</view>
             <input class="code" name="code" type="number" placeholder="请输入验证码" />
@@ -69,7 +78,12 @@
       grade: "",
       major: "",
       graduation: "",
-      time: 60
+      time: 60,
+      multiArray: [
+        [],
+        []
+      ],
+      multiIndex: [0, 0],
     };
     // async sendVerifyCode() {
     //   const json = await api.sendRandCode({
@@ -84,6 +98,17 @@
     //     tip.error(json.data.msg);
     //   }
     // }
+    bindMultiPickerColumnChange(e) {
+      this.multiIndex[e.detail.column] = e.detail.value;
+      if (e.detail.column === 0) {
+        this.multiIndex[1] = 0;
+        console.log(this.multiIndex);
+        this.multiArray[1] = this.multiArray[0][e.detail.value].schoolList;
+      }
+    }
+    bindMultiPickerChange(e) {
+      this.multiIndex = e.detail.value;
+    }
     bindGraduationChange(e){
       this.graduation=e.detail.value;
     }
@@ -102,7 +127,8 @@
         major: value.major,
         name: value.name,
         introduction: value.introduction,
-        avatar: avatar
+        avatar: avatar,
+        location:this.multiArray[1][this.multiIndex[1]].name,
       };
       console.log("payload",payload);
       const json = await apiList.registAccount(payload);
@@ -111,7 +137,7 @@
       wepy.navigateBack();
       // that.showLoading = false;
     }
-    onLoad(option) {
+    async onLoad(option) {
       console.log("option", option);
       this.contact=option.contact;
       this.grade=option.grade;
@@ -121,6 +147,14 @@
       this.name=option.name;
       this.store_name=option.store_name;
 
+      let that = this;
+      const json = await apiList.getSchoolList();
+      console.log("cate", json);
+      that.multiArray = [json, json[0].schoolList];
+      console.log(that.multiArray);
+      that.$apply();
+
+      //TODO: location
     }
     computed = {};
     methods = {

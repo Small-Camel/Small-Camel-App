@@ -93,7 +93,7 @@
       } catch (e) {
         wx.switchTab('/pages/info');
       }
-      let commodityid = await generateCommodityid(openid);
+      let storeid = await generateStoreid(openid);
       let formData = {
         storeid,
         store_name,

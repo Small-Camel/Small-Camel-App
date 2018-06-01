@@ -1,21 +1,21 @@
 <template>
   <view class="info">
-    <view class="header">
-      <view class="header_content">
-        <view wx:if="{{isLogin}}">
-          <image class="avatarUrl" src="{{avatarUrl}}"></image>
-          <view class="nickName cfff">{{nickName}}</view>
+    <button class="header" open-type="getUserInfo" bindgetuserinfo="getuserinfoEvent">
+        <view class="header_content">
+          <view wx:if="{{isLogin}}">
+            <image class="avatarUrl" src="{{avatarUrl}}"></image>
+            <view class="nickName cfff">{{nickName}}</view>
+          </view>
+          <view wx:else @tap="loginEvent()">
+            <view class="avatarUrl"></view>
+            <view class="nickName cfff">点我登陆</view>
+          </view>
         </view>
-        <view wx:else @tap="loginEvent()">
-          <view class="avatarUrl"></view>
-          <view class="nickName cfff">点我登陆</view>
-        </view>
-      </view>
-    </view>
+      </button>
     <button class="regist_button" @tap="registEvent()" wx:if="{{isLogin&&!isUser}}">点我申请店铺~</button>
     <view wx:if="{{isUser}}">
       <view class="info_block">
-        <navigator class="item" url="/pages/store_page?openid={{openid}}&isOwner={{isOwner}}">
+        <navigator class="item" url="/pages/store_page?storeid={{openid}}&isOwner={{isOwner}}">
           <view class="item_content">
             <image class="item_img" src="../images/icon_my_02.png"></image>
             <view class="text">我的商铺</view>
@@ -80,10 +80,9 @@
       isOwner: true,
       registedUserDetail: null,
     };
-    onLoad() {
-      // this.onShow();
-    }
+    async onLoad() {}
     async onShow() {
+      // this.onShow();
       let that = this;
       await that.setLoginState();
       that.openid = await wepy.getStorageSync('openid');
@@ -94,6 +93,7 @@
       tip.loading();
       let that = this;
       let userInfo = wepy.getStorageSync(USER_INFO);
+      console.log(userInfo);
       if (userInfo) {
         that.avatarUrl = userInfo.avatarUrl;
         that.nickName = userInfo.nickName;
@@ -115,10 +115,10 @@
     }
     askForUserDetail() {
       const recordUserDetail = async(code, rawData, signature) => {
-        let that=this;
+        let that = this;
         console.log("登陆");
         const openid = await apiList.login(code);
-        that.openid=openid;
+        that.openid = openid;
         await wepy.setStorageSync('openid', openid);
         await wepy.setStorageSync('rawData', rawData);
         await wepy.setStorageSync('signature', signature);
@@ -135,13 +135,14 @@
               recordUserDetail(code, res.rawData, res.signature);
             },
             fail: function(res) {
-              //用户点了“拒绝”
+              //用户点了“拒绝”用户点了“拒绝”
+              console.log("res", res)
               wx.showModal({
                 title: "小提示",
                 content: "需要获得您的头像和昵称才能继续，是否重新设置权限",
                 success: function(res) {
                   if (res.confirm) {
-                    wx.openSetting({
+                    wepy.openSetting({
                       success: res => {
                         if (res.authSetting["scope.userInfo"]) {
                           wepy.setStorageSync(USER_INFO, res.userInfo);
@@ -169,6 +170,29 @@
     methods = {
       loginEvent() {
         this.askForUserDetail();
+      },
+      getuserinfoEvent: function(res) {
+        const recordUserDetail = async(code, rawData, signature) => {
+          let that = this;
+          console.log("登陆");
+          const openid = await apiList.login(code);
+          that.openid = openid;
+          await wepy.setStorageSync('openid', openid);
+          await wepy.setStorageSync('rawData', rawData);
+          await wepy.setStorageSync('signature', signature);
+          that.setLoginState();
+          that.$apply();
+        };
+        console.log(res)
+        if (!this.isLogin) {
+          wepy.setStorageSync(USER_INFO, res.detail.userInfo);
+          wx.login({
+            success: async function(res) {
+              var code = res.code;
+              recordUserDetail(code, res.rawData, res.signature);
+            }
+          });
+        }
       },
       async registEvent() {
         this.askForUserDetail();

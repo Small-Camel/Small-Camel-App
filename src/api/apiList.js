@@ -4,9 +4,36 @@ import jsonToUrl from "../utils/jsonToUrl";
 
 
 const DEBUG = true;
-const basicUrl = "https://www.xiaoluotuozahuopu.com/api";
-// const basicUrl = "http://172.26.69.219:8080/api";
+// const basicUrl = "https://www.xiaoluotuozahuopu.com/api";
+const basicUrl = "http://172.26.69.135:8080/api";
 // const basicUrl = "http://192.168.2.167:8080/api";
+
+
+
+const initSocket = () => {
+  let userKeys = "";
+  try {
+    userKeys = wx.getStorageSync("openid");
+  } catch (e) {
+    throw e;
+  }
+  
+  wx.connectSocket({
+    url: `ws://172.26.69.135:8080/websocket`,
+    data: {
+    },
+    header: {
+      "content-type": "application/json",
+      "openid":userKeys,
+    },
+  });
+
+  wx.onSocketMessage(function(res) {
+    console.log('收到服务器内容：' + res.data)
+  });
+}
+
+
 
 const getUserKeys = () => {
   try {
@@ -225,7 +252,7 @@ const uploadCommodity = async ({ formData, imageList }) => {
 const getCommodityList = async ({
   size,
   page,
-  openid,
+  storeid,
   name,
   first_rate,
   label
@@ -235,7 +262,7 @@ const getCommodityList = async ({
       method: "GET"
     },
     basicUrl +
-      `/commodityList?size=${size}&page=${page}&openid=${openid}&name=${name}&first_rate=${first_rate}&label=${label}`
+      `/commodityList?size=${size}&page=${page}&storeid=${storeid}&name=${name}&first_rate=${first_rate}&label=${label}`
   );
   return json.data;
 };
@@ -278,12 +305,12 @@ const getCommodityDetail = async commodityid => {
 //     avatar: () => Mock.Random.image("100x100", "blue")
 //   });
 
-const getStoreDetail = async openid => {
+const getStoreDetail = async storeid => {
   let json = await wxRequest(
     {
       method: "GET"
     },
-    basicUrl + `/store?openid=${openid}`
+    basicUrl + `/store?storeid=${storeid}`
   );
   return json.data;
 };
@@ -390,6 +417,69 @@ const getSchoolList = async ()=>{
   ]
 }
 
+const getStoreList = async ({  
+  size,
+  page,
+  openid,
+  name,
+  storeid,
+  first_rate,
+  location
+}) => {
+  let json = await wxRequest(
+    {
+      method: "GET"
+    },
+    basicUrl +
+      `/storelist?size=${size}&page=${page}&openid=${openid}&name=${name}&first_rate=${first_rate}&storeid=${storeid}&location=${location}`
+  );
+  return json.data;
+  // return {
+  //   "content": [
+  //     {
+  //       "storeid": "1",
+  //       "description": "小白大王最帅的的的的的的的的的的的的的的的的小白大王最帅的的的的的的的的的的的的的的的的小白大王最帅的的的的的的的的的的的的的的的的小白大王最帅的的的的的的的的的的的的的的的的小白大王最帅的的的的的的的的的的的的的的的的小白大王最帅的的的的的的的的的的的的的的的的小白大王最帅的的的的的的的的的的的的的的的的小白大王最帅的的的的的的的的的的的的的的的的小白大王最帅的的的的的的的的的的的的的的的的小白大王最帅的的的的的的的的的的的的的的的的",
+  //       "store_name": "小白大王王王王王王王王王王王王王王王王王王王王王",
+  //       "location": "兰州大学",
+  //       "cover":
+  //         "https://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/5ulmc8IHdLc.jpg"
+  //       },
+  //       {
+  //         "storeid": "2",
+  //         "description": "小白大王最帅的",
+  //         "store_name": "小白大王",
+  //         "location": "兰州大学",
+  //         "cover":
+  //           "https://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/5ulmc8IHdLc.jpg"
+  //         },
+  //         {
+  //           "storeid": "3",
+  //           "description": "小白大王最帅的",
+  //           "store_name": "小白大王",
+  //           "location": "兰州大学",
+  //           "cover":
+  //             "https://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/5ulmc8IHdLc.jpg"
+  //           },
+  //   ],
+  //   "pageable": {
+  //     "sort": { "sorted": true, "unsorted": false },
+  //     "offset": 0,
+  //     "pageNumber": 0,
+  //     "pageSize": 2,
+  //     "paged": true,
+  //     "unpaged": false
+  //   },
+  //   "totalPages": 1,
+  //   "totalElements": 2,
+  //   "last": true,
+  //   "number": 0,
+  //   "size": 2,
+  //   "sort": { "sorted": true, "unsorted": false },
+  //   "numberOfElements": 2,
+  //   "first": true
+  // }
+};
+
 module.exports = {
   // getCommodityDetail: getCommodityDetailMock,
   // getCommodityList: getCommodityListMock,
@@ -407,8 +497,10 @@ module.exports = {
   login,
   getUserDetail,
   registAccount,
-  getStoreDetail,
   getCategory,
   deleteCommodity,
   getSchoolList,
+  getStoreList,
+  getStoreDetail,
+  initSocket,
 };

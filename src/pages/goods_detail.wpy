@@ -21,21 +21,15 @@
       <!-- <view class= -->
     </view>
     <view class="store_block">
-      <view class="block">
-        <view class="block_title">联系卖家</view>
-      </view>
-      <view class="block_content">
-        <text selectable class="block_content_text">{{detail.contact}}</text>
-      </view>
       <view class="spacing"></view>
       <view class="block">
         <view class="block_title">店铺介绍</view>
       </view>
-      <navigator url="/pages/store_page?openid={{detail.openid}}" class="store_intro">
-        <image class="avatarUrl" src="{{detail.avatar}}"></image>
+      <navigator url="/pages/store_page?storeid={{detail.store_detail.storeid}}" class="store_intro">
+        <image class="avatarUrl" src="{{detail.store_detail.cover}}"></image>
         <view class="store_text">
-          <view class="store_name">{{detail.store_name}}</view>
-          <view>{{detail.introduction||"店家有些懒，什么也没写~~"}}</view>
+          <view class="store_name">{{detail.store_detail.store_name}}</view>
+          <view>{{detail.store_detail.description||"店家有些懒，什么也没写~~"}}</view>
         </view>
       </navigator>
     </view>

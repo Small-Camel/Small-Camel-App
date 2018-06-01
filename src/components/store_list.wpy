@@ -3,21 +3,20 @@
   <scroll-view scroll-y="true" class="swiper-item-box">
     <checkbox-group bindchange="checkboxChange">
       <view class="shop_item">
-        <navigator class="list" wx:for="{{list}}" wx:key="item" url="/pages/goods_detail?id={{item.commodityid}}">
-          <view class="image_box">
-            <image src="{{item.thumbnail}}"></image>
-          </view>
+        <navigator class="list" wx:for="{{list}}" wx:key="item" url="/pages/store_page?storeid={{item.storeid}}">
           <view wx:if="{{selectable}}" class="checkbox">
             <checkbox catchtap="onCheckbox" value="{{item.commodityid}}" checked="{{item.selected}}" />
             <!-- <view class="checkbox__icon" /> -->
           </view>
-          <view class="goods">
-            <view class="product_name" wx:if="{{showTitle}}">{{item.name}}</view>
-            <view class="product_info">
-              <view class="price">￥{{item.price}}</view>
-              <!-- <view class="cost_price">￥{{item.marketPrice}}</view>
-                    <view class="sale_num">销量{{item.saleCount}}件</view> -->
+          <view class="store_intro">
+            <view class="imageShape">
+              <image class="avatarUrl" src="{{item.cover}}"></image>
             </view>
+            <view class="store_text">
+              <view class="store_name" style="width:400rpx;height:20px;text-overflow:ellipsis; white-space:nowrap; overflow:hidden; ">{{item.store_name}}</view>
+              <view style="width:400rpx;height:50px;text-overflow:ellipsis; white-space:nowrap; overflow:hidden; ">{{item.description||"店家有些懒，什么也没写~~"}}</view>
+            </view>
+            <view class="location">{{item.location}}</view>
           </view>
         </navigator>
       </view>
@@ -30,7 +29,7 @@
     props = {
       list: {
         default: [],
-        twoWay:true        
+        twoWay: true
       },
       purchasetype: {
         default: 1 //类型:1-商品订单;2-商品补单;
@@ -41,9 +40,9 @@
       selectable: {
         default: false
       },
-      selectedList:{
+      selectedList: {
         default: [],
-        twoWay:true
+        twoWay: true
       }
     };
     events = {};
@@ -52,7 +51,7 @@
         // console.log(e);
       },
       checkboxChange: function(e) {
-        this.selectedList=e.detail.value;
+        this.selectedList = e.detail.value;
       }
     };
     onLoad() {}
@@ -64,55 +63,52 @@
     top: 10rpx;
     left: 10rpx;
   }
-  .shop_item {
-    margin: 0 auto;
-    width: 710rpx;
+  .store_intro {
+    width: 100%;
+    margin: 10rpx auto;
     background: white;
+    box-shadow: 0 10rpx 50rpx rgba(0, 0, 0, 0.055);
     display: flex;
-    flex-wrap: wrap;
-    padding-bottom: 30rpx;
-  }
-  .list:nth-child(odd) {
-    margin-right: 20rpx;
-  }
-  .list {
+    flex: 1 1 0%;
     position: relative;
-    margin-bottom: 50rpx;
-    background: #fff;
-    width: 345rpx; // margin-top: 15rpx;
-    .image_box {
-      image {
-        width: 100%;
-        height: 345rpx;
-        border-radius: 15rpx;
-        overflow: hidden;
+    .store_text {
+      flex: 1 1 0%;
+      margin: 30rpx;
+      margin-left: 0;
+    }
+    view {
+      font-size: 25rpx;
+      margin-bottom: 20rpx;
+    }
+    .store_name {
+      font-size: 30rpx;
+      font-weight: bold;
+      color: black;
+      margin-bottom: 20rpx;
+    }
+    .imageShape {
+      width: 300rpx;
+      height: 200rpx;
+      margin: 20rpx;
+      margin-right: 40rpx;
+      border-radius: 3px;
+      overflow: hidden;
+      .avatarUrl {
+        width: 300rpx;
+        height: 300rpx;
+        margin-top: -50rpx;
+        background: white;
       }
     }
-    .product_name {
-      color: #1a1a1a;
-      font-size: 28rpx;
-      overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
-      word-break: break-all;
-    }
-    .price {
-      color: #de0000;
-      font-size: 35rpx;
-      font-weight: 600;
-    }
-    .goods {
-      padding: 15rpx 12rpx;
-    }
-    .product_info {
-      padding-top: 10rpx;
-      text-align: center;
-      display: flex;
-      align-items: flex-end;
-    }
-    .cost_price {
-      padding-left: 20rpx;
+    .location {
+      position: absolute;
+      right: 40rpx;
+      bottom: 0rpx;
+      padding: 5rpx 10rpx;
+      border-radius: 3rpx;
+      color: white;
+      background-color: rgba(135, 44, 255, 0.5);
+      border-color: rgba(0, 0, 255, 0.603)
     }
   }
 </style>

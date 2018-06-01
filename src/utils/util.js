@@ -127,6 +127,11 @@ function convertStarArray(score) {
   }
   return arr
 }
+
+function isFunction(fun){
+  return typeof fun === "function";
+}
+
 module.exports = {
   getCurrentTime: getCurrentTime,
   objLength: objLength,
@@ -138,5 +143,6 @@ module.exports = {
   div: div,
   mul: mul,
   accAdd: accAdd,
-  convertStarArray: convertStarArray
+  convertStarArray: convertStarArray,
+  isFunction:isFunction,
 }

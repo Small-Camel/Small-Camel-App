@@ -1,10 +1,10 @@
 <template>
   <view class="container">
     <view class="store_intro">
-      <image class="avatarUrl" src="{{detail.avatar}}"></image>
+      <image class="avatarUrl" src="{{detail.cover}}"></image>
       <view class="store_text">
         <view class="store_name">{{detail.store_name}}</view>
-        <view>{{detail.introduction||"店家有些懒，什么也没写~~"}}</view>
+        <view>{{detail.description||"店家有些懒，什么也没写~~"}}</view>
       </view>
     </view>
     <view class="recommend-title">商铺商品</view>
@@ -44,7 +44,7 @@
     };
     data = {
       //openid;
-      openid: "",
+      storeid: "",
       //店主数据
       detail: {},
       //swiper
@@ -86,20 +86,20 @@
     }
   
     //获得店铺信息
-    async getStoreDetail(openid) {
+    async getStoreDetail(storeid) {
       let that = this;
-      const json = await apiList.getStoreDetail(openid);
+      const json = await apiList.getStoreDetail(storeid);
       that.detail = json;
       that.$apply();
     }
     //获得商品列表
-    async getGoodList(currentPage, size, openid) {
+    async getGoodList(currentPage, size, storeid) {
       let that = this;
       //const json = await api.getGoodsList({
       const json = await apiList.getCommodityList({
         page: currentPage || 0,
         size: size || 10,
-        openid: openid || this.openid,
+        storeid: storeid || this.storeid,
         // cateCode: this.catCode,
         // sort: this.sort,
         // skuval: this.skuval
@@ -125,15 +125,10 @@
     }
     async onPullDownRefresh(){
       let that = this;
-      const openid=that.openid;
-
-      if(openid===undefined||openid===""){
-        that.openid= await wx.getStorageSync('openid');
-      }
-
+      const storeid=that.storeid;
       that.list=[];
-      await that.getStoreDetail(openid);
-      await that.getGoodList(0, 10, that.openid);
+      await that.getStoreDetail(storeid);
+      await that.getGoodList(0, 10, that.storeid);
       that.currentPage=0;
       that.selectedList=[];
       that.showDeleteButton=false;
@@ -142,16 +137,11 @@
     }
     async onLoad(option) {
       let that = this;
-      that.openid = option.openid;
-
-      if(option.openid===undefined||option.openid===""){
-        that.openid= await wx.getStorageSync('openid');
-      }
-
+      that.storeid = option.storeid;
       that.selectable = option.isOwner;
       console.log(that.isOwner);
-      that.getStoreDetail(that.openid);
-      that.getGoodList(0, 10, that.openid);
+      that.getStoreDetail(that.storeid);
+      that.getGoodList(0, 10, that.storeid);
       that.$apply();
     };
     computed = {};

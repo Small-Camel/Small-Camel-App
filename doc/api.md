@@ -3,7 +3,7 @@
 - [API](#api)
   - [卖家](#)
   - [1.注册登陆](#1)
-    - [1.1 注册](#11)
+    - [1.1 注册`CHANGE`](#11-change)
       - [1. 接口名](#1)
         - [PathParameter](#pathparameter)
         - [Payload](#payload)
@@ -33,7 +33,7 @@
         - [PathParameter](#pathparameter)
       - [2. 返回值](#2)
   - [2. 上传商品](#2)
-    - [2.1 上传](#21)
+    - [2.1 上传`CHANGE`](#21-change)
       - [1. 接口名](#1)
         - [PathParameter](#pathparameter)
         - [Payload](#payload)
@@ -56,6 +56,10 @@
       - [2. 返回值](#2)
   - [4. 分类](#4)
     - [4.1 得到分类](#41)
+      - [1. 接口名](#1)
+      - [2. 返回值](#2)
+  - [5. 聊天](#5)
+    - [5.1 得到新消息](#51)
       - [1. 接口名](#1)
       - [2. 返回值](#2)
 
@@ -546,6 +550,41 @@ GET category
     }]
   },]
 ```
+
+## 5. 聊天
+
+### 5.1 得到新消息
+
+#### 1. 接口名
+
+message
+
+#### 2. 返回值
+
+```json
+{
+  "message_count":(int),//消息数量
+  "message_list":[{
+    "from":{
+      "user_id":string,
+      "user_name":string,
+      "avatar":url,
+    },
+    "to":{
+      "user_id":string,
+      "user_name":string,
+      "avatar":url,
+    },
+    "message":{
+      "type":(TEXT),
+      "content":string,
+    }
+  }]
+}
+
+```
+
+
 
 <!-- #### 3.1 新开店铺
 
