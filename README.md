@@ -1,28 +1,25 @@
-# *This project is under active development.*
+# 这是一个 WePY 架构下的小程序
+
+请使用如下命令编译
+
+```js
+  npm install wepy-cli -g
+  npm install
+  wepy build
+```
+
+
+同时设置开发环境
+
+> 对应关闭ES6转ES5选项，关闭。 **重要：未关闭会运行报错。**
+> 
+> 对应关闭上传代码时样式自动补全选项，关闭。 **重要：某些情况下漏掉此项也会运行报错。**
+> 
+> 对应关闭代码压缩上传选项，关闭。**重要：开启后，会导致真机computed,props.sync 等等属性失效。**
+> 
+> 对应不检查安全域名选项，开启。
+
+
+
 
 THANKS TO [dyq086](https://github.com/dyq086)/[wxYuHanStore](https://github.com/dyq086/wxYuHanStore)
-
-
-### 进度
-
-#### 页面
-
-- `pages/home` 主页(主NAV)
-    - //TODO:走马灯
-- `pages/home_detail` 主页走马灯展示
-    - //TODO:ALL
-- `pages/classify` 分类页(主NAV)
-    - //TODO:ALL
-- `pages/info` 个人信息(主NAV)
-    - //TODO:美化
-- `pages/search` 商品搜索页
-    - //TODO:美化
-    - //TODO:网络接口设置
-- `pages/register` 商铺注册页
-    - DONE
-- `pages/setting` 商铺设置页
-    - //TODO:复用register
-- `pages/goods_detail` 商品详情页
-    - //TODO:店铺信息展示
-- `pages/store_page` 店铺详情页
-    - //TODO:ALL
