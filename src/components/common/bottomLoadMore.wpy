@@ -9,7 +9,7 @@
 </template>
 <script>
 import wepy from 'wepy'
-export default class Placeholder extends wepy.component {
+export default class ButtomLoadMore extends wepy.component {
     props = {
         show: {
             type: Boolean,

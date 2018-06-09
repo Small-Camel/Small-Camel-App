@@ -17,6 +17,7 @@
       <placeholder :show.sync="is_empty" message="暂无发现数据"></placeholder>
     </view>
     <button wx:if="{{showDeleteButton}}" class="delete-button" type="warn" loading="{{deleteLoading}}" bindtap="deleteSelectedCommodity"> 下架选中商品 </button>
+    <navigator wx:if="{{showContect}}" class="talk-button" url="/pages/chatboard?openid={{storeid}}&name={{detail.store_name}}&avatar={{detail.cover}}">联系店家</navigator>
     <!--暂无数据显示-->
     <!-- <placeholder :show.sync="is_empty" message="暂无发现数据"></placeholder> -->
   </view>
@@ -25,16 +26,16 @@
 <script>
   import wepy from "wepy";
   import apiList from "../api/apiList"
-  import api from "../api/api";
   import tip from "../utils/tip";
   import ShopGridList from '../components/shop_grid_list'
   import Bombscreen from "../components/bomb_screen";
   import BottomLoadMore from "../components/common/bottomLoadMore";
   import Placeholder from "../components/common/placeholder";
+  import socket from "../api/socket"
   export default class Home extends wepy.page {
     config = {
       navigationBarTitleText: "商铺详情",
-      enablePullDownRefresh:true
+      enablePullDownRefresh: true
     };
     components = {
       bottomLoadMore: BottomLoadMore,
@@ -71,7 +72,8 @@
       is_show_alert: true,
       selectable: false,
       selectedList: [],
-      showDeleteButton: false
+      showDeleteButton: false,
+      showContect: false,
     };
     watch = {
       selectedList(newValue, oldValue) {
@@ -84,7 +86,9 @@
         console.log("showDeleteButton", this.showDeleteButton);
       }
     }
-  
+    onShow() {
+      socket.initSocket();
+    }
     //获得店铺信息
     async getStoreDetail(storeid) {
       let that = this;
@@ -95,7 +99,6 @@
     //获得商品列表
     async getGoodList(currentPage, size, storeid) {
       let that = this;
-      //const json = await api.getGoodsList({
       const json = await apiList.getCommodityList({
         page: currentPage || 0,
         size: size || 10,
@@ -123,22 +126,26 @@
       that.showLoading = false;
       that.$apply();
     }
-    async onPullDownRefresh(){
+    async onPullDownRefresh() {
       let that = this;
-      const storeid=that.storeid;
-      that.list=[];
+      const storeid = that.storeid;
+      that.list = [];
       await that.getStoreDetail(storeid);
       await that.getGoodList(0, 10, that.storeid);
-      that.currentPage=0;
-      that.selectedList=[];
-      that.showDeleteButton=false;
+      that.currentPage = 0;
+      that.selectedList = [];
+      that.showDeleteButton = false;
       that.$apply();
       wx.stopPullDownRefresh();
     }
     async onLoad(option) {
       let that = this;
+      const openid = await wx.getStorageSync("openid");
       that.storeid = option.storeid;
       that.selectable = option.isOwner;
+      if (openid&&openid !== option.storeid) {
+        that.showContect = true;
+      }
       console.log(that.isOwner);
       that.getStoreDetail(that.storeid);
       that.getGoodList(0, 10, that.storeid);
@@ -162,11 +169,11 @@
               } catch (e) {
                 wx.switchTab('/pages/info');
               }
-              that.list=[];
-              that.selectedList=[];
-              that.showDeleteButton=false;
+              that.list = [];
+              that.selectedList = [];
+              that.showDeleteButton = false;
               await that.$apply();
-              await tip.success("成功",1000);
+              await tip.success("成功", 1000);
               wx.startPullDownRefresh();
             } else if (res.cancel) {
               console.log("用户点击取消");
@@ -307,6 +314,17 @@
     left: 0;
     bottom: 0;
     right: 0;
+  }
+  .talk-button {
+    border-radius: 0;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-image: linear-gradient(to right, #00c6fb 0%, #5898ff 100%);
+    color: white;
+    text-align: center;
+    line-height: 100rpx;
   }
   .store_list {
     margin-bottom: 130rpx

@@ -16,7 +16,6 @@
 
 <script>
   import wepy from 'wepy';
-  import api from '../api/api';
   import apiList from '../api/apiList';
   import tip from '../utils/tip'
   import {

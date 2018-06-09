@@ -1,22 +1,18 @@
 <!--绑定手机-->
 <template>
   <view class="main-sec">
-    <markdown :markdownText.sync="aboutText"></markdown>
   </view>
 </template>
 <script>
   import wepy from "wepy";
   import apiList from "../api/apiList";
-  import Markdown from "../components/markdown";
   export default class About extends wepy.page {
     config = {
       navigationBarTitleText: "关于我们"
     };
     components = {
-      markdown: Markdown
     };
     data = {
-      aboutText: require("../doc/LICENSE.js")
     };
   }
 </script>

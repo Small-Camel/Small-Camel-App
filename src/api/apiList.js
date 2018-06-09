@@ -1,39 +1,14 @@
 import { wxRequest } from "../utils/wxRequest";
 import { UserInfoNotFound } from "./UserInfoNotFound";
-import jsonToUrl from "../utils/jsonToUrl";
 
+import jsonToUrl from "../utils/jsonToUrl";
+import moment from "moment";
+import wepy from "wepy";
 
 const DEBUG = true;
-// const basicUrl = "https://www.xiaoluotuozahuopu.com/api";
-const basicUrl = "http://172.26.69.135:8080/api";
+const basicUrl = "https://www.xiaoluotuozahuopu.com/api";
+// const basicUrl = "http://172.26.69.135:8080/api";
 // const basicUrl = "http://192.168.2.167:8080/api";
-
-
-
-const initSocket = () => {
-  let userKeys = "";
-  try {
-    userKeys = wx.getStorageSync("openid");
-  } catch (e) {
-    throw e;
-  }
-  
-  wx.connectSocket({
-    url: `ws://172.26.69.135:8080/websocket`,
-    data: {
-    },
-    header: {
-      "content-type": "application/json",
-      "openid":userKeys,
-    },
-  });
-
-  wx.onSocketMessage(function(res) {
-    console.log('收到服务器内容：' + res.data)
-  });
-}
-
-
 
 const getUserKeys = () => {
   try {
@@ -132,11 +107,12 @@ const getUserDetail = async () => {
 //   return "12343312324221";
 // };
 
-const login = async code => {
+const login = async (code, userInfo) => {  
   console.log("code", code);
   let json = await wxRequest(
     {
-      method: "GET"
+      query: userInfo,
+      method: "POST"
     },
     basicUrl + `/onLogin?code=${code}`
   );
@@ -147,6 +123,8 @@ const login = async code => {
     console.log("setStorageSync error");
   }
   return data.openid;
+
+
 };
 
 /**
@@ -191,7 +169,7 @@ const uploadCommodity = async ({ formData, imageList }) => {
     console.log("in1formData", formData);
 
     for (let element in imageList) {
-      await wx.uploadFile({
+      await wepy.uploadFile({
         url: basicUrl + `/commodity?` + userKeys, //仅为示例，非真实的接口地址
         // url: basicUrl + `/commodity?` , //仅为示例，非真实的接口地址
         filePath: imageList[element],
@@ -502,5 +480,4 @@ module.exports = {
   getSchoolList,
   getStoreList,
   getStoreDetail,
-  initSocket,
 };

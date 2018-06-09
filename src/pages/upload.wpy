@@ -120,7 +120,7 @@
         imageList: this.imageList
       });
 
-      tip.loaded();
+      await tip.loaded();
 
       await tip.success("上传成功",1000);
       wx.navigateBack();
@@ -165,6 +165,7 @@
         that.$apply()
       },
     };
+
     formSubmit(e) {
       console.log(e);
       let price = e.detail.value.price;
@@ -191,9 +192,9 @@
       wx.showModal({
         title: "上传确认",
         content: `您确定要上传名为 ${name} 的商品吗？`,
-        success: function(res) {
+        success: async function(res) {
           if (res.confirm) {
-            that.uploadCommodity(name, description, price);
+            await that.uploadCommodity(name, description, price);
           } else if (res.cancel) {
             console.log("用户点击取消");
           }

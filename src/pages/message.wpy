@@ -1,39 +1,46 @@
 <template>
   <view class="container">
-    <view class="store_intro">
-      <image class="avatarUrl" src="https://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/label/%E5%A4%B4%E5%83%8F/61813571_p0.png?x-oss-process=style/xiaoluotuo-label"></image>
+    <navigator class="store_intro" wx:key="{{item.openid}}" wx:for="{{listData}}" open-type="navigate" url="/pages/chatboard?openid={{item.openid}}">
+      <image class="avatarUrl" src="{{item.avatar}}" />
       <view class="store_text">
-        <view class="store_name">小白大王</view>
-        <view>在吗？</view>
+        <view class="store_name">{{item.name}}</view>
+        <view>{{item.latest_mes}}</view>
+        <view class="unread" wx:if="{{item.unread}}">{{item.unread}}</view>
       </view>
-    </view>
-        <view class="store_intro">
-      <image class="avatarUrl" src="https://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/label/%E5%A4%B4%E5%83%8F/62056884_p2_master1200.jpg?x-oss-process=style/xiaoluotuo-label"></image>
-      <view class="store_text">
-        <view class="store_name">小白大王</view>
-        <view>在吗？</view>
-      </view>
-    </view>
-    <view class="store_intro">
-      <image class="avatarUrl" src="https://cseiii-image-hosting.oss-cn-shenzhen.aliyuncs.com/label/%E5%A4%B4%E5%83%8F/pixiv40971444_waifu2x_art_noise1_scale_tta_1.png?x-oss-process=style/xiaoluotuo-label"></image>
-      <view class="store_text">
-        <view class="store_name">小白大王</view>
-        <view>在吗？</view>
-      </view>
-    </view>
-    </view>
+    </navigator>
+    <placeholder :show.sync="isEmpty" message="还没有你的消息~"></placeholder>
+  </view>
 </template>
 
 <script>
   import wepy from "wepy";
+  import {
+    getStore,
+    connect
+  } from 'wepy-redux'
+  import socket from "../api/socket";
+  import Placeholder from "../components/common/placeholder";
+  @connect({
+    listData: state => {
+      console.log(state);
+      return state.message.user_list;
+    },
+    isEmpty: state => {
+      return state.message.user_list.length === 0;
+    }
+  })
   export default class Home extends wepy.page {
     config = {
       navigationBarTitleText: "消息",
-      enablePullDownRefresh:true
     };
+    onShow() {
+      socket.initSocket();
+    }
     components = {
+      placeholder: Placeholder,
     };
     data = {
+      myList: getStore().getState().message.user_list
       //openid;
     };
   }
@@ -41,31 +48,46 @@
 
 <style lang="less">
   .store_intro {
-    width: 600rpx;
-    margin: 50rpx auto;
+    width: 100%;
+    margin: 10rpx auto;
+    position: relative;
     background: white;
-    border-radius: 10rpx;
-    box-shadow: 0 10rpx 50rpx rgba(0, 0, 0, 0.055);
+    box-shadow: 0 5rpx 4rpx rgba(0, 0, 0, 0.05);
     display: flex;
     flex: 1 1 0%;
+    .unread {
+      position: absolute;
+      right: 30rpx;
+      top: 40rpx;
+      padding: 3rpx 12rpx;
+      font-size: 10px;
+      border-radius: 40rpx;
+      background: rgba(0, 0, 255, 0.39);
+      color: white;
+    }
     .store_text {
       flex: 1 1 0%;
       margin: 30rpx;
       margin-left: 0;
+      max-width: 450rpx;
     }
     view {
       font-size: 25rpx;
-      margin-bottom: 20rpx;
+      margin-bottom: 10rpx;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
     .store_name {
-      font-size: 30rpx;
+      font-size: 33rpx;
       font-weight: bold;
       color: black;
-      margin-bottom: 20rpx;
+      margin-bottom: 10rpx;
+      margin-top: 5rpx;
     }
     .avatarUrl {
-      width: 110rpx;
-      height: 110rpx;
+      width: 100rpx;
+      height: 100rpx;
       margin: 30rpx;
       border-radius: 1000px;
       background: white;

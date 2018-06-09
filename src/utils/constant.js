@@ -20,3 +20,9 @@ export const SYSTEM_INFO = "systemInfo";
 export const ADDRESS_ID = "addressId";
 
 export const SEL_CLASS_CODE = "selClassCode";
+
+export const MESSAGE_DATA="MESSAGE_DATA";
+
+export const FROM_LEFT="FROM_LEFT";
+
+export const FROM_RIGHT="FROM_RIGHT";

@@ -1,0 +1,321 @@
+<template>
+    <view class="container">
+        <scroll-view bindscroll="scroll" class="messageboard" scroll-y scroll-into-view="{{toView}}" scroll-with-animation='true'>
+            <block wx:for="{{chattingList}}" wx:key="index" wx:for-index="index" wx:for-item="item">
+                <view wx:if="{{item.from==='FROM_LEFT'}}">
+                    <view class="message_receive">
+                        <image class="avatar" src="{{avatar}}"></image>
+                        <view class="msg">{{item.content}}</view>
+                    </view>
+                </view>
+                <view wx:else>
+                    <view class="message_send">
+                        <view class="msg">{{item.content}}</view>
+                    </view>
+                </view>
+            </block>
+            <view id="bottomView" />
+        </scroll-view>
+        <view class="messagebar">
+            <view wx:if="{{socketLoading}}" class="loading">
+                <bottomLoadMore :show.sync="showLoading" message="正在加载"></bottomLoadMore>
+            </view>
+            <form bindreset="send">
+                <view class="messagebar-inner">
+                    <input class="messagetextarea" auto-height maxlength='300' name="description" placeholder="我想说..." bindinput="inputContent" />
+                    <button class="sendbutton" formType="reset">发送</button>
+                </view>
+            </form>
+        </view>
+        <view class="foot" />
+    </view>
+</template>
+
+<script>
+    import wepy from "wepy";
+    import {
+        getStore,
+        connect
+    } from 'wepy-redux'
+    import {
+        FROM_LEFT,
+        FROM_RIGHT,
+        MESSAGE_DATA
+    } from '../utils/constant';
+    import moment from "moment";
+    import {
+        refreshMessage
+    } from '../store/actions'
+    import socket from "../api/socket";
+    import BottomLoadMore from "../components/common/bottomLoadMore";
+    const store = getStore();
+    const bottomView = "bottomView";
+    @connect({
+        socketLoading: state => state.message.socketLoading,
+    })
+    export default class Chatboard extends wepy.page {
+        config = {
+            navigationBarTitleText: "消息"
+        };
+        components = {
+            bottomLoadMore: BottomLoadMore,
+        };
+        data = {
+            chattingList: [],
+            avatar: "",
+            toView: "no-where",
+            showLoading: true,
+        };
+        openid = "";
+        textValue = "";
+        async onUnload() {
+            const localStorage = await wx.getStorageSync(MESSAGE_DATA) || {
+                message_count: 0, //消息数量
+                user_list: []
+            };;
+            const userIndex = localStorage.user_list.findIndex(item => item.openid === this.openid);
+            if (userIndex === -1) {
+                console.log("user_error");
+            } else {
+                localStorage.message_count -= localStorage.user_list[userIndex].unread;
+                localStorage.user_list[userIndex].unread = 0;
+                await wx.setStorageSync(MESSAGE_DATA, localStorage);
+                store.dispatch(refreshMessage(localStorage));
+            }
+        }
+        onshow() {
+            socket.initSocket();
+            this.toView = bottomView;
+            let that = this;
+            setTimeout(() => {
+                that.toView = "no-where";
+                that.$apply();
+            }, 1);
+            //TODO:
+        }
+        onLoad(option) {
+            this.openid = option.openid;
+            console.log(option);
+            const userList = store.getState().message.user_list;
+            console.log(store.getState().message);
+            const chattinguser = userList.find((user) => user.openid === this.openid);
+            if (chattinguser) {
+                wepy.setNavigationBarTitle({
+                    title: chattinguser.name
+                })
+                this.chattingList = chattinguser.message_list;
+                this.avatar = chattinguser.avatar;
+            } else {
+                this.name = option.name;
+                this.avatar = option.avatar;
+                wepy.setNavigationBarTitle({
+                    title: option.name
+                })
+            }
+            this.toView = bottomView;
+            let that= this;
+            wx.onSocketMessage(res => {
+                console.log("socket chatboard", res)
+                this.toView = "no-where";
+                const nextComment = JSON.parse(res.data);
+                if (nextComment.message_list) {
+                    const messageList = nextComment.message_list.slice(0).sort((a, b) => {
+                        return Number(a.time.format("x")) - Number(moment(b.time).format("x"));
+                    });
+                    messageList.forEach(element => {
+                        if (element.from.openid === this.openid) {
+                            console.log(res);
+                            that.chattingList.push({
+                                ...element.message,
+                                time: element.time,
+                                from: FROM_LEFT,
+                            })
+                        }
+                    });
+                    that.toView = bottomView;
+                    that.avatar = nextComment.message_list[0].from.avatar;
+                    that.$apply();
+                    setTimeout(() => {
+                        that.toView = "no-where";
+                        that.$apply();
+                    }, 10);
+                }
+            });
+            // let that = this;
+            // setTimeout(() => {
+            //     that.toView = "no-where";
+            //     that.$apply();
+            // }, 1);
+            // //TODO:
+            // wx.onSocketMessage(res => {
+            //     this.toView = "no-where";
+            //     const nextComment = JSON.parse(res.data);
+            //     if (nextComment.message_list && nextComment.message_list[0].from.openid === that.openid) {
+            //         that.chattingList.push({
+            //             ...nextComment.message_list[0].message,
+            //             time: nextComment.message_list[0].time,
+            //             from: FROM_LEFT,
+            //         })
+            //         that.toView = bottomView;
+            //         that.avatar = nextComment.message_list[0].from.avatar;
+            //         that.$apply();
+            //         setTimeout(() => {
+            //             that.toView = "no-where";
+            //             that.$apply();
+            //         }, 10);
+            //     }
+            // });
+        };
+        methods = {
+            scroll() {
+                this.toView = "no-where";
+            },
+            async send() {
+                let that = this;
+                const nextComment = {
+                    type: "TEXT",
+                    content: this.textValue,
+                    time: moment().format("YYYY-MM-DD HH:mm:ss"),
+                    from: FROM_RIGHT,
+                };
+                this.chattingList.push(nextComment);
+                const localStorage = await wx.getStorageSync(MESSAGE_DATA) || {
+                    message_count: 0, //消息数量
+                    user_list: []
+                };;
+                const userIndex = localStorage.user_list.findIndex(item => item.openid === this.openid);
+                if (userIndex === -1) {
+                    localStorage.user_list.push({
+                        openid: this.openid,
+                        name: this.name,
+                        avatar: this.avatar,
+                        latest_mes: nextComment.content,
+                        latest_time: nextComment.time,
+                        message_list: [{
+                            ...nextComment,
+                            time: nextComment.time,
+                            from: FROM_RIGHT
+                        }],
+                        unread: 0
+                    });
+                    //TODO:
+                } else {
+                    localStorage.user_list[userIndex].message_list.push(nextComment);
+                    localStorage.user_list[userIndex].latest_mes = nextComment.content;
+                    localStorage.user_list[userIndex].latest_time = nextComment.content;
+                }
+                await wx.setStorageSync(MESSAGE_DATA, localStorage);
+                store.dispatch(refreshMessage(localStorage));
+                that.textValue = "";
+                that.toView = bottomView;
+                that.$apply();
+                setTimeout(() => {
+                    that.toView = "no-where";
+                    that.$apply();
+                }, 10);
+                await wx.sendSocketMessage({
+                    data: JSON.stringify({ ...nextComment,
+                        to_openid: this.openid
+                    }),
+                })
+            },
+            inputContent(e) {
+                this.toView = "no-where";
+                this.textValue = e.detail.value;
+            }
+        }
+    }
+</script>
+
+<style lang="less">
+    .container {
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+        .messageboard {
+            height: 100vh;
+            box-sizing: border-box;
+            padding-bottom: 48px;
+        }
+        .foot {
+            flex: 1;
+        }
+    }
+    .messagebar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: auto;
+        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.048);
+        .loading {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 10;
+            padding: 20rpx;
+            background: rgba(255, 255, 255, 0.719);
+        }
+        .messagebar-inner {
+            width: 100%;
+            display: flex;
+            .messagetextarea {
+                width: 100%;
+                align-self: stretch;
+                flex-shrink: 1;
+                padding: 30rpx;
+                background: white;
+            }
+            .sendbutton {
+                align-self: stretch;
+                flex-shrink: 0;
+                background-image: linear-gradient(to right, #00c6fb 0%, #5898ff 100%);
+                border: none;
+                font-size: 30rpx;
+                padding: 0 40rpx;
+                line-height:110rpx;
+                border-radius: 0;
+                color: white;
+            }
+        }
+    }
+    .message_receive {
+        display: flex;
+        flex-direction: row;
+        margin: 20rpx;
+        .avatar {
+            width: 80rpx;
+            height: 80rpx;
+            border-radius: 50%;
+            background: white;
+        }
+        .msg {
+            max-width: 400rpx;
+            margin-top: 5rpx;
+            margin-left: 15rpx;
+            padding: 20rpx 30rpx;
+            border-radius: 30rpx;
+            border-top-left-radius: 0;
+            background: #e5e5ea;
+        }
+    }
+    .message_send {
+        display: flex;
+        flex-direction: row-reverse;
+        align-self: flex-end;
+        margin: 20rpx;
+        .msg {
+            max-width: 400rpx;
+            margin-top: 5rpx;
+            margin-left: 15rpx;
+            padding: 20rpx 30rpx;
+            border-radius: 30rpx;
+            color: white;
+            border-bottom-right-radius: 0;
+            background: #5898ff;
+            background-image: linear-gradient(to right, #00c6fb 0%, #5898ff 100%);
+        }
+    }
+</style>

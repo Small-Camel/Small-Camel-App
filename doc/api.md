@@ -559,6 +559,15 @@ GET category
 
 message
 
+```json
+{
+  "type":(TEXT),
+  "content":string,
+}
+```
+
+
+
 #### 2. 返回值
 
 ```json
@@ -566,19 +575,20 @@ message
   "message_count":(int),//消息数量
   "message_list":[{
     "from":{
-      "user_id":string,
-      "user_name":string,
+      "openid":string,
+      "name":string,
       "avatar":url,
     },
     "to":{
-      "user_id":string,
-      "user_name":string,
+      "openid":string,
+      "name":string,
       "avatar":url,
     },
     "message":{
       "type":(TEXT),
       "content":string,
-    }
+    },
+    "time":yyyy-MM-dd HH:mm:ss
   }]
 }
 

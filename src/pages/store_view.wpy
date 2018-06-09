@@ -25,7 +25,6 @@
 <script>
   import wepy from "wepy";
   import apiList from "../api/apiList"
-  import api from "../api/api";
   import tip from "../utils/tip";
 
   import StoreList from '../components/store_list'
@@ -96,7 +95,6 @@
     //获得商品列表
     async getGoodList(currentPage, size, openid) {
       let that = this;
-      //const json = await api.getGoodsList({
       const json = await apiList.getCommodityList({
         page: currentPage || 0,
         size: size || 10,
