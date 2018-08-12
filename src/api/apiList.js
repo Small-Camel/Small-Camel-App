@@ -1,14 +1,11 @@
 import { wxRequest } from "../utils/wxRequest";
-import { UserInfoNotFound } from "./UserInfoNotFound";
 
 import jsonToUrl from "../utils/jsonToUrl";
 import moment from "moment";
 import wepy from "wepy";
 
 const DEBUG = true;
-const basicUrl = "https://www.xiaoluotuozahuopu.com/api";
-// const basicUrl = "http://172.26.69.135:8080/api";
-// const basicUrl = "http://192.168.2.167:8080/api";
+const basicUrl = "https://www.8fc0.cn/api";
 
 const getUserKeys = () => {
   try {
@@ -46,7 +43,7 @@ const getUserKeys = () => {
  */
 // const registAccountMock = () => {};
 
-const registAccount = async  (payload) => {
+const registAccount = async payload => {
   let userKeys = "";
   try {
     userKeys = await getUserKeys();
@@ -107,7 +104,7 @@ const getUserDetail = async () => {
 //   return "12343312324221";
 // };
 
-const login = async (code, userInfo) => {  
+const login = async (code, userInfo) => {
   console.log("code", code);
   let json = await wxRequest(
     {
@@ -123,8 +120,6 @@ const login = async (code, userInfo) => {
     console.log("setStorageSync error");
   }
   return data.openid;
-
-
 };
 
 /**
@@ -199,34 +194,34 @@ const uploadCommodity = async ({ formData, imageList }) => {
  * @param {*} param0
  */
 // const getCommodityListMock = () =>
-  // Mock.mock({
-  //   "content|12": [
-  //     {
-  //       commodityid: () => Mock.Random.string(10),
-  //       price: 8888.0,
-  //       label: "2(String)标签, 分类",
-  //       name: "2(String)商品名(不超过12字)",
-  //       openid: "admin",
-  //       thumbnail: () => Mock.Random.image("250x250")
-  //     }
-  //   ],
-  //   pageable: {
-  //     sort: { sorted: true, unsorted: false },
-  //     offset: 0,
-  //     pageNumber: 0,
-  //     pageSize: 2,
-  //     paged: true,
-  //     unpaged: false
-  //   },
-  //   totalPages: 10,
-  //   totalElements: 2,
-  //   last: true,
-  //   number: 0,
-  //   size: 2,
-  //   sort: { sorted: true, unsorted: false },
-  //   numberOfElements: 2,
-  //   first: true
-  // });
+// Mock.mock({
+//   "content|12": [
+//     {
+//       commodityid: () => Mock.Random.string(10),
+//       price: 8888.0,
+//       label: "2(String)标签, 分类",
+//       name: "2(String)商品名(不超过12字)",
+//       openid: "admin",
+//       thumbnail: () => Mock.Random.image("250x250")
+//     }
+//   ],
+//   pageable: {
+//     sort: { sorted: true, unsorted: false },
+//     offset: 0,
+//     pageNumber: 0,
+//     pageSize: 2,
+//     paged: true,
+//     unpaged: false
+//   },
+//   totalPages: 10,
+//   totalElements: 2,
+//   last: true,
+//   number: 0,
+//   size: 2,
+//   sort: { sorted: true, unsorted: false },
+//   numberOfElements: 2,
+//   first: true
+// });
 const getCommodityList = async ({
   size,
   page,
@@ -249,21 +244,21 @@ const getCommodityList = async ({
  * @param {*} commodityid
  */
 // const getCommodityDetailMock = () =>
-  // Mock.mock({
-  //   "images|5": [() => Mock.Random.image("720x500")],
-  //   name: () => Mock.Random.cname(),
-  //   description: () => "description" + Mock.Random.string(30),
-  //   image_number: 5,
-  //   label: () => "label" + Mock.Random.string(3),
-  //   commodityid: () => Mock.Random.string(8),
-  //   "price|1-500": 1,
+// Mock.mock({
+//   "images|5": [() => Mock.Random.image("720x500")],
+//   name: () => Mock.Random.cname(),
+//   description: () => "description" + Mock.Random.string(30),
+//   image_number: 5,
+//   label: () => "label" + Mock.Random.string(3),
+//   commodityid: () => Mock.Random.string(8),
+//   "price|1-500": 1,
 
-  //   contact: () => "contact" + Mock.Random.string(30),
-  //   store_name: () => "store_name" + Mock.Random.string(3),
-  //   openid: () => Mock.Random.string(10),
-  //   introduction: () => Mock.Random.string(30),
-  //   avatar: () => Mock.Random.image("100x100", "blue")
-  // });
+//   contact: () => "contact" + Mock.Random.string(30),
+//   store_name: () => "store_name" + Mock.Random.string(3),
+//   openid: () => Mock.Random.string(10),
+//   introduction: () => Mock.Random.string(30),
+//   avatar: () => Mock.Random.image("100x100", "blue")
+// });
 const getCommodityDetail = async commodityid => {
   let json = await wxRequest(
     {
@@ -294,46 +289,46 @@ const getStoreDetail = async storeid => {
 };
 
 // const getCategoryMock = () =>
-  // Mock.mock([
-  //   {
-  //     cover: [() => Mock.Random.image("100x100")],
-  //     name: () => Mock.Random.cname(),
-  //     description: () => Mock.Random.string(30),
-  //     "children|15": [
-  //       {
-  //         cover: () => Mock.Random.image("100x100"),
-  //         name: () => Mock.Random.cname(),
-  //         description: () => Mock.Random.string(30)
-  //       }
-  //     ]
-  //   },
-  //   {
-  //     cover: [() => Mock.Random.image("100x100")],
-  //     name: () => Mock.Random.cname(),
-  //     description: () => Mock.Random.string(30),
-  //     "children|15": [
-  //       {
-  //         cover: [() => Mock.Random.image("100x100")],
-  //         name: () => Mock.Random.cname(),
-  //         description: () => Mock.Random.string(30)
-  //       }
-  //     ]
-  //   },
-  //   {
-  //     cover: [() => Mock.Random.image("100x100")],
-  //     name: () => Mock.Random.cname(),
-  //     description: () => Mock.Random.string(30),
-  //     "children|15": [
-  //       {
-  //         cover: [() => Mock.Random.image("100x100")],
-  //         name: () => Mock.Random.cname(),
-  //         description: () => Mock.Random.string(30)
-  //       }
-  //     ]
-  //   }
-  // ]);
+// Mock.mock([
+//   {
+//     cover: [() => Mock.Random.image("100x100")],
+//     name: () => Mock.Random.cname(),
+//     description: () => Mock.Random.string(30),
+//     "children|15": [
+//       {
+//         cover: () => Mock.Random.image("100x100"),
+//         name: () => Mock.Random.cname(),
+//         description: () => Mock.Random.string(30)
+//       }
+//     ]
+//   },
+//   {
+//     cover: [() => Mock.Random.image("100x100")],
+//     name: () => Mock.Random.cname(),
+//     description: () => Mock.Random.string(30),
+//     "children|15": [
+//       {
+//         cover: [() => Mock.Random.image("100x100")],
+//         name: () => Mock.Random.cname(),
+//         description: () => Mock.Random.string(30)
+//       }
+//     ]
+//   },
+//   {
+//     cover: [() => Mock.Random.image("100x100")],
+//     name: () => Mock.Random.cname(),
+//     description: () => Mock.Random.string(30),
+//     "children|15": [
+//       {
+//         cover: [() => Mock.Random.image("100x100")],
+//         name: () => Mock.Random.cname(),
+//         description: () => Mock.Random.string(30)
+//       }
+//     ]
+//   }
+// ]);
 
-const getCategory = async () =>{
+const getCategory = async () => {
   let json = await wxRequest(
     {
       method: "GET"
@@ -341,8 +336,7 @@ const getCategory = async () =>{
     basicUrl + `/category`
   );
   return json.data;
-}
-  
+};
 
 const deleteCommodity = async commodityList => {
   let userKeys = "";
@@ -361,7 +355,6 @@ const deleteCommodity = async commodityList => {
     );
     if (json.statusCode > 400) {
       return false;
-
     }
     return json.data;
   });
@@ -369,7 +362,7 @@ const deleteCommodity = async commodityList => {
   return true;
 };
 
-const getArticleList= async ()=>{
+const getArticleList = async () => {
   let json = await wxRequest(
     {
       method: "GET"
@@ -377,25 +370,22 @@ const getArticleList= async ()=>{
     basicUrl + `/articlelist`
   );
   return json.data;
-}
+};
 
-const getSchoolList = async ()=>{
+const getSchoolList = async () => {
   return [
     {
-      name:'兰州',
-      schoolList:[
-        {name:'兰州大学'},
-      ]
-    },{
-      name:'南京',
-      schoolList:[
-        {name:'南京大学'},
-      ]
+      name: "兰州",
+      schoolList: [{ name: "兰州大学" }]
+    },
+    {
+      name: "南京",
+      schoolList: [{ name: "南京大学" }]
     }
-  ]
-}
+  ];
+};
 
-const getStoreList = async ({  
+const getStoreList = async ({
   size,
   page,
   openid,
@@ -479,5 +469,5 @@ module.exports = {
   deleteCommodity,
   getSchoolList,
   getStoreList,
-  getStoreDetail,
+  getStoreDetail
 };

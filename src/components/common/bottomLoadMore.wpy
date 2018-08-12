@@ -8,37 +8,35 @@
     </view>
 </template>
 <script>
-import wepy from 'wepy'
+import wepy from "wepy";
 export default class ButtomLoadMore extends wepy.component {
-    props = {
-        show: {
-            type: Boolean,
-            default: false
-        }
-    };
+  props = {
+    show: {
+      type: Boolean,
+      default: false
+    }
+  };
 }
 </script>
 <style lang="less">
 .loadMoreGif {
-    margin: 15rpx auto;
-    width: 220rpx;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text {
-        font-size: 30rpx;
-        color: #999;
-        margin-left: 10rpx;
-    }
-    image {
-        width: 30rpx;
-        height: 30rpx;
-    }
+  margin: 15rpx auto;
+  width: 220rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text {
+    font-size: 30rpx;
+    color: #999;
+    margin-left: 10rpx;
+  }
+  image {
+    width: 30rpx;
+    height: 30rpx;
+  }
 }
 
 .spinner {
-//   margin: 100px auto 0;
-//   width: 220rpx;
   text-align: center;
 }
 
@@ -65,17 +63,26 @@ export default class ButtomLoadMore extends wepy.component {
 }
 
 @-webkit-keyframes sk-bouncedelay {
-  0%, 80%, 100% { -webkit-transform: scale(0) }
-  40% { -webkit-transform: scale(1.0) }
+  0%,
+  80%,
+  100% {
+    -webkit-transform: scale(0);
+  }
+  40% {
+    -webkit-transform: scale(1);
+  }
 }
 
 @keyframes sk-bouncedelay {
-  0%, 80%, 100% { 
+  0%,
+  80%,
+  100% {
     -webkit-transform: scale(0);
     transform: scale(0);
-  } 40% { 
-    -webkit-transform: scale(1.0);
-    transform: scale(1.0);
+  }
+  40% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
   }
 }
 </style>

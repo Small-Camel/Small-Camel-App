@@ -50,203 +50,203 @@
   </form>
 </template>
 <script>
-  import wepy from "wepy";
-  import apiList from "../api/apiList";
-  import tip from "../utils/tip";
-  import generateCommodityid from "../utils/idUtils.js";
-  import {
-    USER_INFO
-  } from "../utils/constant";
-  export default class UploadCommodity extends wepy.page {
-    config = {
-      navigationBarTitleText: "上传商品"
-    };
-    components = {};
-    data = {
-      multiArray: [
-        [],
-        []
-      ],
-      multiIndex: [0, 0],
-      time: 60,
-      imageList: []
-    };
-    bindGraduationChange(e) {
-      this.graduation = e.detail.value;
+import wepy from "wepy";
+import apiList from "../api/apiList";
+import tip from "../utils/tip";
+import generateCommodityid from "../utils/idUtils.js";
+import { USER_INFO } from "../utils/constant";
+export default class UploadCommodity extends wepy.page {
+  config = {
+    navigationBarTitleText: "上传商品"
+  };
+  components = {};
+  data = {
+    multiArray: [[], []],
+    multiIndex: [0, 0],
+    time: 60,
+    imageList: []
+  };
+  bindGraduationChange(e) {
+    this.graduation = e.detail.value;
+  }
+  async onLoad() {
+    let that = this;
+    const json = await apiList.getCategory();
+    console.log("cate", json);
+    that.multiArray = [json, json[0].children];
+    console.log(that.multiArray);
+    that.$apply();
+  }
+  bindMultiPickerColumnChange(e) {
+    this.multiIndex[e.detail.column] = e.detail.value;
+    if (e.detail.column === 0) {
+      this.multiIndex[1] = 0;
+      console.log(this.multiIndex);
+      this.multiArray[1] = this.multiArray[0][e.detail.value].children;
     }
-    async onLoad() {
-      let that = this;
-      const json = await apiList.getCategory();
-      console.log("cate", json);
-      that.multiArray = [json, json[0].children];
-      console.log(that.multiArray);
-      that.$apply();
+  }
+  bindMultiPickerChange(e) {
+    this.multiIndex = e.detail.value;
+  }
+  async uploadCommodity(name, description, price) {
+    tip.loading();
+    let openid = "";
+    try {
+      openid = wx.getStorageSync("openid");
+    } catch (e) {
+      wx.switchTab("/pages/info");
     }
-    bindMultiPickerColumnChange(e) {
-      this.multiIndex[e.detail.column] = e.detail.value;
-      if (e.detail.column === 0) {
-        this.multiIndex[1] = 0;
-        console.log(this.multiIndex);
-        this.multiArray[1] = this.multiArray[0][e.detail.value].children;
-      }
-    }
-    bindMultiPickerChange(e) {
-      this.multiIndex = e.detail.value;
-    }
-    async uploadCommodity(name, description, price) {
-      tip.loading();
-      let openid = ""
-      try {
-        openid = wx.getStorageSync("openid");
-      } catch (e) {
-        wx.switchTab('/pages/info');
-      }
-      let commodityid = await generateCommodityid(openid);
-      let formData = {
-        commodityid,
-        name,
-        description,
-        price,
-        label: `${this.multiArray[0][this.multiIndex[0]].name}-${this.multiArray[1][this.multiIndex[1]].name}`,
-        image_number: this.imageList.length,
-        storeid:openid
-      };
-
-      await console.log("image",this.imageList);
-      
-      
-      await apiList.uploadCommodity({
-        formData: formData,
-        imageList: this.imageList
-      });
-
-      await tip.loaded();
-
-      await tip.success("上传成功",1000);
-      wx.navigateBack();
-    }
-    computed = {};
-    methods = {
-      bindDigitInput: function(event){
-        console.log(event);
-        const oldValue=event.detail.value;
-        let newValue=oldValue;
-        newValue = newValue.replace(/[^\d.]/g,"");  //清除“数字”和“.”以外的字符  
-        newValue = newValue.replace(/\.{2,}/g,"."); //只保留第一个. 清除多余的  
-        newValue = newValue.replace(".","$#$").replace(/\./g,"").replace("$#$","."); 
-        newValue = newValue.replace(/^(\-)*(\d+)\.(\d\d).*$/,'$1$2.$3');//只能输入两个小数  
-        return newValue;
-      },
-      chooseImage: function() {
-        var that = this;
-        console.log("imageList", this.imageList);
-        wx.chooseImage({
-          sourceType: ['camera', 'album'],
-          sizeType: ['compressed'],
-          count: 5 - that.data.imageList.length,
-          success: function(res) {
-            that.imageList = [...that.data.imageList, ...res.tempFilePaths]
-            that.$apply()
-          }
-        })
-      },
-      previewImage: function(e) {
-        var current = e.target.dataset.src
-        wx.previewImage({
-          current: current,
-          urls: this.data.imageList
-        })
-      },
-      deleteimage: function(e) {
-        console.log(e.target.id);
-        var index1 = e.target.id === "" ? 0 : e.target.id;
-        var that = this
-        that.imageList = that.data.imageList.filter((items, index) => index != index1)
-        that.$apply()
-      },
+    let commodityid = await generateCommodityid(openid);
+    let formData = {
+      commodityid,
+      name,
+      description,
+      price,
+      label: `${this.multiArray[0][this.multiIndex[0]].name}-${
+        this.multiArray[1][this.multiIndex[1]].name
+      }`,
+      image_number: this.imageList.length,
+      storeid: openid
     };
 
-    formSubmit(e) {
-      console.log(e);
-      let price = e.detail.value.price;
-      let description = e.detail.value.description;
-      let name = e.detail.value.name;
-      let imageList = this.imageList.slice(0);
-      let that = this;
-      if (price === "") {
-        tip.alert("请输入商品价格");
-        return false;
-      }
-      if (description === "") {
-        tip.alert("请输入商品描述");
-        return false;
-      }
-      if (name === "") {
-        tip.alert("请输入商品名称");
-        return false;
-      }
-      if (imageList.length === 0) {
-        tip.alert("请添加图片详情");
-        return false;
-      }
-      wx.showModal({
-        title: "上传确认",
-        content: `您确定要上传名为 ${name} 的商品吗？`,
-        success: async function(res) {
-          if (res.confirm) {
-            await that.uploadCommodity(name, description, price);
-          } else if (res.cancel) {
-            console.log("用户点击取消");
-          }
+    await console.log("image", this.imageList);
+
+    await apiList.uploadCommodity({
+      formData: formData,
+      imageList: this.imageList
+    });
+
+    await tip.loaded();
+
+    await tip.success("上传成功", 1000);
+    wx.navigateBack();
+  }
+  computed = {};
+  methods = {
+    bindDigitInput: function(event) {
+      console.log(event);
+      const oldValue = event.detail.value;
+      let newValue = oldValue;
+      newValue = newValue.replace(/[^\d.]/g, ""); //清除“数字”和“.”以外的字符
+      newValue = newValue.replace(/\.{2,}/g, "."); //只保留第一个. 清除多余的
+      newValue = newValue
+        .replace(".", "$#$")
+        .replace(/\./g, "")
+        .replace("$#$", ".");
+      newValue = newValue.replace(/^(\-)*(\d+)\.(\d\d).*$/, "$1$2.$3"); //只能输入两个小数
+      return newValue;
+    },
+    chooseImage: function() {
+      var that = this;
+      console.log("imageList", this.imageList);
+      wx.chooseImage({
+        sourceType: ["camera", "album"],
+        sizeType: ["compressed"],
+        count: 5 - that.data.imageList.length,
+        success: function(res) {
+          that.imageList = [...that.data.imageList, ...res.tempFilePaths];
+          that.$apply();
         }
       });
+    },
+    previewImage: function(e) {
+      var current = e.target.dataset.src;
+      wx.previewImage({
+        current: current,
+        urls: this.data.imageList
+      });
+    },
+    deleteimage: function(e) {
+      console.log(e.target.id);
+      var index1 = e.target.id === "" ? 0 : e.target.id;
+      var that = this;
+      that.imageList = that.data.imageList.filter(
+        (items, index) => index != index1
+      );
+      that.$apply();
     }
+  };
+
+  formSubmit(e) {
+    console.log(e);
+    let price = e.detail.value.price;
+    let description = e.detail.value.description;
+    let name = e.detail.value.name;
+    let imageList = this.imageList.slice(0);
+    let that = this;
+    if (price === "") {
+      tip.alert("请输入商品价格");
+      return false;
+    }
+    if (description === "") {
+      tip.alert("请输入商品描述");
+      return false;
+    }
+    if (name === "") {
+      tip.alert("请输入商品名称");
+      return false;
+    }
+    if (imageList.length === 0) {
+      tip.alert("请添加图片详情");
+      return false;
+    }
+    wx.showModal({
+      title: "上传确认",
+      content: `您确定要上传名为 ${name} 的商品吗？`,
+      success: async function(res) {
+        if (res.confirm) {
+          await that.uploadCommodity(name, description, price);
+        } else if (res.cancel) {
+          console.log("用户点击取消");
+        }
+      }
+    });
   }
+}
 </script>
 <style lang="less">
-  .block_label {
-    margin: 40rpx auto 20rpx;
-    width: 100rpx;
+.block_label {
+  margin: 40rpx auto 20rpx;
+  width: 100rpx;
+}
+.section {
+  display: flex;
+  align-items: top;
+  padding: 20rpx 30rpx; // border-bottom: 1px solid rgba(219, 219, 219, 0.376);
+  background: #fff;
+  .section_title {
+    color: #1a1a1a7c;
+    width: 200rpx;
+    padding-top: 10rpx;
   }
-  .section {
-    display: flex;
-    align-items: top;
-    padding: 20rpx 30rpx; // border-bottom: 1px solid rgba(219, 219, 219, 0.376);
-    background: #fff;
-    .section_title {
-      color: #1a1a1a7c;
-      width: 200rpx;
-      padding-top: 10rpx;
-    }
-    .picker,
-    input,
-    textarea {
-      width: 500rpx;
-    }
-    textarea {
-      height: 200rpx;
-    }
-    .btn {
-      padding: 15rpx 10rpx;
-      border: 1px solid #000000;
-      -moz-border-radius: 5rpx;
-      /* Firefox */
-      -webkit-border-radius: 5rpx;
-      /* Safari 和 Chrome */
-      border-radius: 5rpx;
-      /* Opera 10.5+, 以及使用了IE-CSS3的IE浏览器 */
-      color: #000000;
-    }
-    .send_code {
-      margin-left: 40rpx;
-    }
+  .picker,
+  input,
+  textarea {
+    width: 500rpx;
   }
-  .btn_comfire {
-    margin: 64rpx auto;
-    padding: 0 24rpx;
+  textarea {
+    height: 200rpx;
   }
-  .code {
-    width: 300rpx;
-  } //上传图片部分
-
+  .btn {
+    padding: 15rpx 10rpx;
+    border: 1px solid #000000;
+    -moz-border-radius: 5rpx;
+    /* Firefox */
+    -webkit-border-radius: 5rpx;
+    /* Safari 和 Chrome */
+    border-radius: 5rpx;
+    /* Opera 10.5+, 以及使用了IE-CSS3的IE浏览器 */
+    color: #000000;
+  }
+  .send_code {
+    margin-left: 40rpx;
+  }
+}
+.btn_comfire {
+  margin: 64rpx auto;
+  padding: 0 24rpx;
+}
+.code {
+  width: 300rpx;
+} //上传图片部分
 </style>

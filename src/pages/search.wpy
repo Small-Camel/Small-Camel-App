@@ -15,178 +15,174 @@
 </template>
 
 <script>
-  import wepy from 'wepy';
-  import apiList from '../api/apiList';
-  import tip from '../utils/tip'
-  import {
-    SYSTEM_INFO,
-    USER_SPECICAL_INFO
-  } from '../utils/constant';
-  import Searchs from '../components/search'
-  import FilterBar from "../components/filter_bar"
-  import ShopGridList from '../components/shop_grid_list'
-  import BottomLoadMore from "../components/common/bottomLoadMore"
-  import Placeholder from "../components/common/placeholder"
-  import FilterSlider from '../components/filterSlider'
-  export default class Search extends wepy.page {
-    config = {
-      navigationBarTitleText: '搜索',
-    }
-    components = {
-      search: Searchs,
-      // filterBar: FilterBar,
-      // filterSlider: FilterSlider,
-      shopGridList: ShopGridList,
-      bottomLoadMore: BottomLoadMore,
-      placeholder: Placeholder
-    }
-    data = {
-      list: [],
-      showLoading: false,
-      purchasetype: 1,
-      is_empty: false,
-      is_filter: false,
-      //当前页面
-      currentPage: 0,
-      //总页数
-      page_total: 0,
-      keyword: "",
-      keywordhisList: [],
-      cateCode: "",
-      show: false,
-      sort: -1,
-      title: "",
-      skuval: ""
-    }
-    setTitle(title) {
-      wepy.setNavigationBarTitle({
-        title: title
-      })
-    }
-    onLoad(option) {
-      this.list = [];
-      this.skuval = "";
-      this.cateName = option.cateName;
-      if (this.cateName != undefined && this.cateName.length > 0) { //分类进入
-        this.$invoke('search', 'show', "0");
-        this.show = false;
-        this.doSearchGoods(this.cateName);
-        this.title = "" + option.cateName;
-        this.setTitle("" + option.cateName);
-      } else { //搜索进入
-        this.$invoke('search', 'show', "1");
-        this.show = true;
-      }
-    }
-    computed = {}
-    async doSearchGoods(keyword, currentPage, size) {
-      let that = this;
-      //判断keyword为分类还是名称，keyword为分类时show为false
-      let payload = {};
-      if (that.show) {
-        payload = {
-          name: keyword,
-          page: currentPage || 0,
-          size: size || 10
-        }
-      } else {
-        payload = {
-          label: keyword,
-          page: currentPage || 0,
-          size: size || 10
-        }
-      }
-      const json = await apiList.getCommodityList(payload);
-      that.list=[...that.list, ...json.content] ;
-      that.page_total=json.totalPages;
-
-      that.showLoading = false;
-      that.$apply();
-    }
-    methods = {
-      doSearch(val) {
-        this.list = [];
-        this.is_empty = false;
-        //tip.success("搜索：" + val);
-        this.showLoading = true;
-        this.keyword = val;
-        this.doSearchGoods(val);
-        //this.list = bb.result.products;
-        //this.$apply();
-      },
-      onShareAppMessage: function(res) {
-        if (res.from === 'button') {
-          // 来自页面内转发按钮
-          console.log(res.target)
-        }
-        return {
-          title: this.detail.name,
-          path: '/pages/search?cateCode=' + this.cateCode + '&title=' + this.title,
-          success: function(res) {
-            // 转发成功
-          },
-          fail: function(res) {
-            // 转发失败
-          }
-        }
-      }
-    }
-    //加载更多
-    onReachBottom() {
-      let that = this;
-      that.showLoading = true;
-      console.log(that.page_total + "===" + that.currentPage);
-      //判断总页数是否大于翻页数
-      if ((that.page_total) > that.currentPage) {
-        //防止重复加载
-        if (that.preventRepeatReuqest) {
-          return true;
-        }
-        that.preventRepeatReuqest = true;
-        that.currentPage++;
-        that.doSearchGoods(this.keyword, that.currentPage);
-        that.preventRepeatReuqest = false;
-      } else {
-        that.showLoading = false;
-      }
-    };
+import wepy from "wepy";
+import apiList from "../api/apiList";
+import tip from "../utils/tip";
+import { SYSTEM_INFO, USER_SPECICAL_INFO } from "../utils/constant";
+import Searchs from "../components/search";
+import ShopGridList from "../components/shop_grid_list";
+import BottomLoadMore from "../components/common/bottomLoadMore";
+import Placeholder from "../components/common/placeholder";
+export default class Search extends wepy.page {
+  config = {
+    navigationBarTitleText: "搜索"
+  };
+  components = {
+    search: Searchs,
+    shopGridList: ShopGridList,
+    bottomLoadMore: BottomLoadMore,
+    placeholder: Placeholder
+  };
+  data = {
+    list: [],
+    showLoading: false,
+    purchasetype: 1,
+    is_empty: false,
+    is_filter: false,
+    //当前页面
+    currentPage: 0,
+    //总页数
+    page_total: 0,
+    keyword: "",
+    keywordhisList: [],
+    cateCode: "",
+    show: false,
+    sort: -1,
+    title: "",
+    skuval: ""
+  };
+  setTitle(title) {
+    wepy.setNavigationBarTitle({
+      title: title
+    });
   }
+  onLoad(option) {
+    this.list = [];
+    this.skuval = "";
+    this.cateName = option.cateName;
+    if (this.cateName != undefined && this.cateName.length > 0) {
+      //分类进入
+      this.$invoke("search", "show", "0");
+      this.show = false;
+      this.doSearchGoods(this.cateName);
+      this.title = "" + option.cateName;
+      this.setTitle("" + option.cateName);
+    } else {
+      //搜索进入
+      this.$invoke("search", "show", "1");
+      this.show = true;
+    }
+  }
+  computed = {};
+  async doSearchGoods(keyword, currentPage, size) {
+    let that = this;
+    //判断keyword为分类还是名称，keyword为分类时show为false
+    let payload = {};
+    if (that.show) {
+      payload = {
+        name: keyword,
+        page: currentPage || 0,
+        size: size || 10
+      };
+    } else {
+      payload = {
+        label: keyword,
+        page: currentPage || 0,
+        size: size || 10
+      };
+    }
+    const json = await apiList.getCommodityList(payload);
+    that.list = [...that.list, ...json.content];
+    that.page_total = json.totalPages;
+
+    that.showLoading = false;
+    that.$apply();
+  }
+  methods = {
+    doSearch(val) {
+      this.list = [];
+      this.is_empty = false;
+      //tip.success("搜索：" + val);
+      this.showLoading = true;
+      this.keyword = val;
+      this.doSearchGoods(val);
+      //this.list = bb.result.products;
+      //this.$apply();
+    },
+    onShareAppMessage: function(res) {
+      if (res.from === "button") {
+        // 来自页面内转发按钮
+        console.log(res.target);
+      }
+      return {
+        title: this.detail.name,
+        path:
+          "/pages/search?cateCode=" + this.cateCode + "&title=" + this.title,
+        success: function(res) {
+          // 转发成功
+        },
+        fail: function(res) {
+          // 转发失败
+        }
+      };
+    }
+  };
+  //加载更多
+  onReachBottom() {
+    let that = this;
+    that.showLoading = true;
+    console.log(that.page_total + "===" + that.currentPage);
+    //判断总页数是否大于翻页数
+    if (that.page_total > that.currentPage) {
+      //防止重复加载
+      if (that.preventRepeatReuqest) {
+        return true;
+      }
+      that.preventRepeatReuqest = true;
+      that.currentPage++;
+      that.doSearchGoods(this.keyword, that.currentPage);
+      that.preventRepeatReuqest = false;
+    } else {
+      that.showLoading = false;
+    }
+  }
+}
 </script>
 
 <style lang="less">
-  .history {
-    padding: 20px 27px;
-  }
-  .doc {
-    color: #999;
+.history {
+  padding: 20px 27px;
+}
+.doc {
+  color: #999;
+  font-size: 26rpx;
+}
+.lable {
+  margin-top: 20rpx;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-left: -20rpx;
+  .child {
+    background: #dedede;
+    padding: 10rpx 20rpx;
+    border-radius: 300rpx;
+    margin-left: 20rpx;
     font-size: 26rpx;
+    margin-top: 5rpx;
+    color: #000;
   }
-  .lable {
-    margin-top: 20rpx;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    margin-left: -20rpx;
-    .child {
-      background: #dedede;
-      padding: 10rpx 20rpx;
-      border-radius: 300rpx;
-      margin-left: 20rpx;
-      font-size: 26rpx;
-      margin-top: 5rpx;
-      color: #000;
-    }
+}
+.btn_box {
+  width: 377rpx;
+  margin: 0 auto;
+  padding-top: 88rpx;
+  .button {
+    color: #999;
   }
-  .btn_box {
-    width: 377rpx;
-    margin: 0 auto;
-    padding-top: 88rpx;
-    .button {
-      color: #999;
-    }
-  }
-  .active {
-    border: 1px solid #f23737;
-    color: #f23737;
-  }
+}
+.active {
+  border: 1px solid #f23737;
+  color: #f23737;
+}
 </style>

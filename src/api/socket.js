@@ -7,8 +7,6 @@ import moment from "moment";
 
 const DEBUG = true;
 const basicUrl = "https://www.xiaoluotuozahuopu.com/api";
-// const basicUrl = "http://172.26.69.135:8080/api";
-// const basicUrl = "http://192.168.2.167:8080/api";
 
 let isSocketOpen = false;
 
@@ -57,7 +55,7 @@ const initSocket = () => {
     return false;
   }
   const SocketTask = wx.connectSocket({
-    url: `wss://www.xiaoluotuozahuopu.com/websocket`,
+    url: `wss://www.8fc0.cn/websocket`,
     data: {},
     header: {
       "content-type": "application/json",
@@ -111,7 +109,9 @@ const initSocket = () => {
 
     const nextUserList = localStorage.user_list.slice(0);
     const messageList = response.message_list.slice(0).sort((a, b) => {
-      return Number(moment(a.time).format("x")) - Number(moment(b.time).format("x"));
+      return (
+        Number(moment(a.time).format("x")) - Number(moment(b.time).format("x"))
+      );
     });
     messageList.forEach(item => {
       const userIndex = nextUserList.findIndex(
@@ -145,7 +145,9 @@ const initSocket = () => {
       }
     });
     nextLocalStorage.user_list = nextUserList.sort((a, b) => {
-      return Number(moment(b.time).format("x")) - Number(moment(a.time).format("x"));
+      return (
+        Number(moment(b.time).format("x")) - Number(moment(a.time).format("x"))
+      );
     });
     await wx.setStorageSync(MESSAGE_DATA, nextLocalStorage);
     await console.log(wx.getStorageSync(MESSAGE_DATA));

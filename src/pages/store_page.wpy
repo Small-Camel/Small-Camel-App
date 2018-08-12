@@ -24,309 +24,307 @@
 </template>
 
 <script>
-  import wepy from "wepy";
-  import apiList from "../api/apiList"
-  import tip from "../utils/tip";
-  import ShopGridList from '../components/shop_grid_list'
-  import Bombscreen from "../components/bomb_screen";
-  import BottomLoadMore from "../components/common/bottomLoadMore";
-  import Placeholder from "../components/common/placeholder";
-  import socket from "../api/socket"
-  export default class Home extends wepy.page {
-    config = {
-      navigationBarTitleText: "商铺详情",
-      enablePullDownRefresh: true
-    };
-    components = {
-      bottomLoadMore: BottomLoadMore,
-      placeholder: Placeholder,
-      bombscreen: Bombscreen,
-      shopGridList: ShopGridList
-    };
-    data = {
-      //openid;
-      storeid: "",
-      //店主数据
-      detail: {},
-      //swiper
-      indicatorDots: true,
-      autoplay: true,
-      interval: 3000,
-      duration: 1500,
-      list: [],
-      purchasetype: 1,
-      indicatorActiveColor: "#fff",
-      //是否有数据
-      is_empty: false,
-      //当前页面
-      currentPage: 0,
-      //总页数
-      totalPages: 0,
-      //是否显示 底部loading
-      showLoading: true,
-      //防止重复加载
-      preventRepeatRequest: false,
-      //广告列表
-      adList: [],
-      tps: 0,
-      is_show_alert: true,
-      selectable: false,
-      selectedList: [],
-      showDeleteButton: false,
-      showContect: false,
-    };
-    watch = {
-      selectedList(newValue, oldValue) {
-        if (newValue.length >= 1) {
-          this.showDeleteButton = true;
-        } else {
-          this.showDeleteButton = false;
-        }
-        console.log("newValue", newValue)
-        console.log("showDeleteButton", this.showDeleteButton);
-      }
-    }
-    onShow() {
-      socket.initSocket();
-    }
-    //获得店铺信息
-    async getStoreDetail(storeid) {
-      let that = this;
-      const json = await apiList.getStoreDetail(storeid);
-      that.detail = json;
-      that.$apply();
-    }
-    //获得商品列表
-    async getGoodList(currentPage, size, storeid) {
-      let that = this;
-      const json = await apiList.getCommodityList({
-        page: currentPage || 0,
-        size: size || 10,
-        storeid: storeid || this.storeid,
-        // cateCode: this.catCode,
-        // sort: this.sort,
-        // skuval: this.skuval
-      });
-      const selectedList = that.selectedList.slice(0);
-      console.log("selectedList", selectedList);
-      that.list.map(e => {
-        console.log("selectedList", selectedList.indexOf(e));
-        if (selectedList.indexOf(e.commodityid) >= 0) {
-          e.selected = true;
-        }
-        return e;
-      })
-      that.list = [...that.list, ...json.content];
-      that.selectedList = selectedList;
-      that.totalPages = json.totalPages;
-      if (json.totalElements == 0) {
-        //暂无数据
-        that.is_empty = true;
-      }
-      that.showLoading = false;
-      that.$apply();
-    }
-    async onPullDownRefresh() {
-      let that = this;
-      const storeid = that.storeid;
-      that.list = [];
-      await that.getStoreDetail(storeid);
-      await that.getGoodList(0, 10, that.storeid);
-      that.currentPage = 0;
-      that.selectedList = [];
-      that.showDeleteButton = false;
-      that.$apply();
-      wx.stopPullDownRefresh();
-    }
-    async onLoad(option) {
-      let that = this;
-      const openid = await wx.getStorageSync("openid");
-      that.storeid = option.storeid;
-      that.selectable = option.isOwner;
-      if (openid&&openid !== option.storeid) {
-        that.showContect = true;
-      }
-      console.log(that.isOwner);
-      that.getStoreDetail(that.storeid);
-      that.getGoodList(0, 10, that.storeid);
-      that.$apply();
-    };
-    computed = {};
-    methods = {
-      deleteSelectedCommodity() {
-        // const contentText
-        let that = this;
-        wx.showModal({
-          title: "下架商品",
-          content: `您选中了${that.selectedList.length}件商品，是否继续`,
-          success: async function(res) {
-            if (res.confirm) {
-              tip.loading();
-              await apiList.deleteCommodity(that.selectedList);
-              let openid = ""
-              try {
-                openid = await wx.getStorageSync("openid");
-              } catch (e) {
-                wx.switchTab('/pages/info');
-              }
-              that.list = [];
-              that.selectedList = [];
-              that.showDeleteButton = false;
-              await that.$apply();
-              await tip.success("成功", 1000);
-              wx.startPullDownRefresh();
-            } else if (res.cancel) {
-              console.log("用户点击取消");
-            }
-          }
-        });
-      },
-      onShopListTap() {
-        console.log(this.list)
-      },
-      goToAdvert(url) {
-        console.log("url===" + url);
-        if (url.length == 0) {
-          return;
-        }
-        wepy.navigateTo({
-          url: url
-        });
-      },
-      onShareAppMessage: function(res) {
-        if (res.from === "button") {
-          // 来自页面内转发按钮
-          console.log(res.target);
-        }
-        return {
-          title: "小骆驼",
-          path: "/pages/home",
-          success: function(res) {
-            // 转发成功
-          },
-          fail: function(res) {
-            // 转发失败
-          }
-        };
-      },
-      alertCallback() {
-        tip.alert("跳转");
-      },
-      closeAlert() {
-        tip.alert("关闭");
-      }
-    };
-    events = {};
-    //加载更多优惠商品
-    onReachBottom() {
-      let that = this;
-      that.showLoading = true;
-      console.log(that.totalPages + "===" + that.currentPage);
-      //判断总页数是否大于翻页数
-      if (that.totalPages > that.currentPage) {
-        //防止重复加载
-        if (that.preventRepeatRequest) {
-          return true;
-        }
-        that.preventRepeatRequest = true;
-        that.currentPage++;
-        that.getGoodList(that.currentPage);
-        that.preventRepeatRequest = false;
+import wepy from "wepy";
+import apiList from "../api/apiList";
+import tip from "../utils/tip";
+import ShopGridList from "../components/shop_grid_list";
+import BottomLoadMore from "../components/common/bottomLoadMore";
+import Placeholder from "../components/common/placeholder";
+import socket from "../api/socket";
+export default class Home extends wepy.page {
+  config = {
+    navigationBarTitleText: "商铺详情",
+    enablePullDownRefresh: true
+  };
+  components = {
+    bottomLoadMore: BottomLoadMore,
+    placeholder: Placeholder,
+    shopGridList: ShopGridList
+  };
+  data = {
+    //openid;
+    storeid: "",
+    //店主数据
+    detail: {},
+    //swiper
+    indicatorDots: true,
+    autoplay: true,
+    interval: 3000,
+    duration: 1500,
+    list: [],
+    purchasetype: 1,
+    indicatorActiveColor: "#fff",
+    //是否有数据
+    is_empty: false,
+    //当前页面
+    currentPage: 0,
+    //总页数
+    totalPages: 0,
+    //是否显示 底部loading
+    showLoading: true,
+    //防止重复加载
+    preventRepeatRequest: false,
+    //广告列表
+    adList: [],
+    tps: 0,
+    is_show_alert: true,
+    selectable: false,
+    selectedList: [],
+    showDeleteButton: false,
+    showContect: false
+  };
+  watch = {
+    selectedList(newValue, oldValue) {
+      if (newValue.length >= 1) {
+        this.showDeleteButton = true;
       } else {
-        that.showLoading = false;
+        this.showDeleteButton = false;
       }
-      that.$apply();
+      console.log("newValue", newValue);
+      console.log("showDeleteButton", this.showDeleteButton);
     }
+  };
+  onShow() {
+    socket.initSocket();
   }
+  //获得店铺信息
+  async getStoreDetail(storeid) {
+    let that = this;
+    const json = await apiList.getStoreDetail(storeid);
+    that.detail = json;
+    that.$apply();
+  }
+  //获得商品列表
+  async getGoodList(currentPage, size, storeid) {
+    let that = this;
+    const json = await apiList.getCommodityList({
+      page: currentPage || 0,
+      size: size || 10,
+      storeid: storeid || this.storeid
+      // cateCode: this.catCode,
+      // sort: this.sort,
+      // skuval: this.skuval
+    });
+    const selectedList = that.selectedList.slice(0);
+    console.log("selectedList", selectedList);
+    that.list.map(e => {
+      console.log("selectedList", selectedList.indexOf(e));
+      if (selectedList.indexOf(e.commodityid) >= 0) {
+        e.selected = true;
+      }
+      return e;
+    });
+    that.list = [...that.list, ...json.content];
+    that.selectedList = selectedList;
+    that.totalPages = json.totalPages;
+    if (json.totalElements == 0) {
+      //暂无数据
+      that.is_empty = true;
+    }
+    that.showLoading = false;
+    that.$apply();
+  }
+  async onPullDownRefresh() {
+    let that = this;
+    const storeid = that.storeid;
+    that.list = [];
+    await that.getStoreDetail(storeid);
+    await that.getGoodList(0, 10, that.storeid);
+    that.currentPage = 0;
+    that.selectedList = [];
+    that.showDeleteButton = false;
+    that.$apply();
+    wx.stopPullDownRefresh();
+  }
+  async onLoad(option) {
+    let that = this;
+    const openid = await wx.getStorageSync("openid");
+    that.storeid = option.storeid;
+    that.selectable = option.isOwner;
+    if (openid && openid !== option.storeid) {
+      that.showContect = true;
+    }
+    console.log(that.isOwner);
+    that.getStoreDetail(that.storeid);
+    that.getGoodList(0, 10, that.storeid);
+    that.$apply();
+  }
+  computed = {};
+  methods = {
+    deleteSelectedCommodity() {
+      // const contentText
+      let that = this;
+      wx.showModal({
+        title: "下架商品",
+        content: `您选中了${that.selectedList.length}件商品，是否继续`,
+        success: async function(res) {
+          if (res.confirm) {
+            tip.loading();
+            await apiList.deleteCommodity(that.selectedList);
+            let openid = "";
+            try {
+              openid = await wx.getStorageSync("openid");
+            } catch (e) {
+              wx.switchTab("/pages/info");
+            }
+            that.list = [];
+            that.selectedList = [];
+            that.showDeleteButton = false;
+            await that.$apply();
+            await tip.success("成功", 1000);
+            wx.startPullDownRefresh();
+          } else if (res.cancel) {
+            console.log("用户点击取消");
+          }
+        }
+      });
+    },
+    onShopListTap() {
+      console.log(this.list);
+    },
+    goToAdvert(url) {
+      console.log("url===" + url);
+      if (url.length == 0) {
+        return;
+      }
+      wepy.navigateTo({
+        url: url
+      });
+    },
+    onShareAppMessage: function(res) {
+      if (res.from === "button") {
+        // 来自页面内转发按钮
+        console.log(res.target);
+      }
+      return {
+        title: "小骆驼",
+        path: "/pages/home",
+        success: function(res) {
+          // 转发成功
+        },
+        fail: function(res) {
+          // 转发失败
+        }
+      };
+    },
+    alertCallback() {
+      tip.alert("跳转");
+    },
+    closeAlert() {
+      tip.alert("关闭");
+    }
+  };
+  events = {};
+  //加载更多优惠商品
+  onReachBottom() {
+    let that = this;
+    that.showLoading = true;
+    console.log(that.totalPages + "===" + that.currentPage);
+    //判断总页数是否大于翻页数
+    if (that.totalPages > that.currentPage) {
+      //防止重复加载
+      if (that.preventRepeatRequest) {
+        return true;
+      }
+      that.preventRepeatRequest = true;
+      that.currentPage++;
+      that.getGoodList(that.currentPage);
+      that.preventRepeatRequest = false;
+    } else {
+      that.showLoading = false;
+    }
+    that.$apply();
+  }
+}
 </script>
 
 <style lang="less">
-  .store_intro {
-    width: 600rpx;
-    margin: 50rpx auto;
-    background: white;
-    border-radius: 10rpx;
-    box-shadow: 0 10rpx 50rpx rgba(0, 0, 0, 0.055);
-    display: flex;
+.store_intro {
+  width: 600rpx;
+  margin: 50rpx auto;
+  background: white;
+  border-radius: 10rpx;
+  box-shadow: 0 10rpx 50rpx rgba(0, 0, 0, 0.055);
+  display: flex;
+  flex: 1 1 0%;
+  .store_text {
     flex: 1 1 0%;
-    .store_text {
-      flex: 1 1 0%;
-      margin: 30rpx;
-      margin-left: 0;
-    }
-    view {
-      font-size: 25rpx;
-      margin-bottom: 20rpx;
-    }
-    .store_name {
-      font-size: 30rpx;
-      font-weight: bold;
-      color: black;
-      margin-bottom: 20rpx;
-    }
-    .avatarUrl {
-      width: 110rpx;
-      height: 110rpx;
-      margin: 30rpx;
-      border-radius: 1000px;
-      background: white;
-    }
+    margin: 30rpx;
+    margin-left: 0;
   }
-  .pos {
-    // position: fixed;
+  view {
+    font-size: 25rpx;
+    margin-bottom: 20rpx;
+  }
+  .store_name {
+    font-size: 30rpx;
+    font-weight: bold;
+    color: black;
+    margin-bottom: 20rpx;
+  }
+  .avatarUrl {
+    width: 110rpx;
+    height: 110rpx;
+    margin: 30rpx;
+    border-radius: 1000px;
     background: white;
-    padding: 20rpx 0;
+  }
+}
+.pos {
+  // position: fixed;
+  background: white;
+  padding: 20rpx 0;
+  width: 100%;
+  .search_read_only .search_content {
     width: 100%;
-    .search_read_only .search_content {
-      width: 100%;
-    }
   }
-  .nav_list {
-    color: #404040;
-    display: flex;
+}
+.nav_list {
+  color: #404040;
+  display: flex;
+  font-size: 26rpx;
+  justify-content: space-between;
+  padding: 17rpx 50rpx;
+  navigator {
+    text-align: center;
+  }
+  .nav_icon {
+    height: 80rpx;
+    margin: 0 auto;
+    width: 80rpx;
+    margin-bottom: 14rpx;
+  }
+  .nav_text {
     font-size: 26rpx;
-    justify-content: space-between;
-    padding: 17rpx 50rpx;
-    navigator {
-      text-align: center;
-    }
-    .nav_icon {
-      height: 80rpx;
-      margin: 0 auto;
-      width: 80rpx;
-      margin-bottom: 14rpx;
-    }
-    .nav_text {
-      font-size: 26rpx;
-    }
   }
-  .recommend-title {
-    padding: 40rpx 0;
-    text-align: center;
-    color: #333;
-  }
-  .container {
-    background: transparent;
-  }
-  .delete-button {
-    border-radius: 0;
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    right: 0;
-  }
-  .talk-button {
-    border-radius: 0;
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    background-image: linear-gradient(to right, #00c6fb 0%, #5898ff 100%);
-    color: white;
-    text-align: center;
-    line-height: 100rpx;
-  }
-  .store_list {
-    margin-bottom: 130rpx
-  }
+}
+.recommend-title {
+  padding: 40rpx 0;
+  text-align: center;
+  color: #333;
+}
+.container {
+  background: transparent;
+}
+.delete-button {
+  border-radius: 0;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+.talk-button {
+  border-radius: 0;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-image: linear-gradient(to right, #00c6fb 0%, #5898ff 100%);
+  color: white;
+  text-align: center;
+  line-height: 100rpx;
+}
+.store_list {
+  margin-bottom: 130rpx;
+}
 </style>
